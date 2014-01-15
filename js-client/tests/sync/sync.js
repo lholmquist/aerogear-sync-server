@@ -119,9 +119,21 @@
         notEqual( response.rev, putDoc.doc.rev, 'Delete revision should be different' );
     });
 
+    test('try getting deleted document', function() {
+        var documentId = uuid();
+        var putDoc = putDocument( documentId, [ { model: 'honda' }, { model: 'bmw' } ] );
+        var response = deleteDocument( documentId, putDoc.doc.rev);
+
+        var getDoc = getDocument( documentId );
+        equal( getDoc.status, 404, 'Status should be 404, not found' );
+    });
+
     function getDocument( id ) {
         var xhr = xhrObject( 'GET', id );
         xhr.send( null );
+        if( xhr.status >= 400 ) {
+            return { status: xhr.status };
+        }
         return fromJson( xhr.responseText );
     }
 
