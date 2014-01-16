@@ -2,7 +2,7 @@
 
     module('Sync integration test');
 
-    test('add document', function() {
+    asyncTest('add document', function() {
         var documentId = uuid();
         var ws = new WebSocket("ws://localhost:7777/sync");
         var addMsg = JSON.stringify( { msgType: 'add', docId: documentId, content: 'Do or do not, there is no try.' } );
@@ -16,9 +16,10 @@
         ws.onmessage = function ( evt ) {
             var json = JSON.parse( evt.data );
             result = json.result;
+
+            equal( result, 'CREATED', 'Document should have been added' );
+            start();// Will Continue with other tests,  if any
         };
-        // how do I make the above synchronous...wait for the ws.onopen callback
-        equal( result, 'CREATED', 'Document should have been added' );
     });
 
     function uuid()
