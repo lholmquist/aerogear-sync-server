@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <link rel="stylesheet" href="bower_components/topcoat/css/topcoat-mobile-light.min.css">
+    <link rel="stylesheet" href="bower_components/topcoat-icons/font/icomatic.css">
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <section id="main">
+        <div class="topcoat-navigation-bar">
+            <div class="topcoat-navigation-bar__item quarter reset">
+                <button class="topcoat-button--quiet reset">Reset</button>
+            </div>
+            <div class="topcoat-navigation-bar__item center half">
+                <h1 class="topcoat-navigation-bar__title">Luke Skywalker</h1>
+            </div>
+        </div>
+        <div class="content">
+            <div class="detail"></div>
+            <h3>Hobbies</h3>
+            <ul class="topcoat-list__container" id="hobby-list"></ul>
+        </div>
+    </section>
+    <script src="bower_components/jquery/jquery.min.js"></script>
+    <script src="bower_components/lodash/dist/lodash.min.js"></script>
+    <script src="bower_components/aerogear-datamanager/aerogear.datamanager.min.js"></script>
+    <script src="lib/diff_match_patch_uncompressed.js"></script>
+    <script src="src/sync/sync-engine.js"></script>
+    <script src="src/sync/sync-client.js"></script>
+    <script src="scripts/index.js"></script>
+
+
+
+    <script type="text/template" id="detail">
+        <div class="full left">
+         <ul class="topcoat-list__container">
+            <li class='topcoat-list__item'><%=content%></li>
+
+            <li class='topcoat-list__item'>
+                revision:
+            </li>
+            <li class='topcoat-list__item'>
+                <div class="view">
+                    <label>Profession:<%=content%></label>
+                </div>
+                <input class="edit" value="<%=content%>" id="profession">
+            </li>
+            </ul>
+        </div>
+    </script>
+
+    <script type="text/template" id="hobbies">
+        <% _.each( hobbies, function( hobby ){ %>
+            <li class='topcoat-list__item'>
+                <div class="view">
+                    <label><%=hobby.description%></label>
+                </div>
+                <input class="edit hobby" value="<%=hobby.description%>" id="<%=hobby.id%>">
+            </li>
+        <% }) %>
+    </script>
+</body>
+</html>

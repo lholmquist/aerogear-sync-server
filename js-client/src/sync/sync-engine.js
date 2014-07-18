@@ -32,8 +32,10 @@ Sync.Engine = function () {
      * @returns {object} containing the diffs that between the clientDoc and it's shadow doc.
      */
     this.diff = function( doc ) {
-        var shadow = dm.stores.shadows.read( doc.id )[0];
-        return {
+        var diffDoc,
+        shadow = dm.stores.shadows.read( doc.id )[0];
+
+        diffDoc = {
             msgType: 'patch',
             id: doc.id,
             clientId: shadow.clientId,
@@ -45,6 +47,12 @@ Sync.Engine = function () {
                 diffs: this._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
             }]
         };
+
+        shadow.clientVersion++;
+        shadow.doc.content = doc.content;
+        this._saveShadow( shadow );
+
+        return diffDoc;
     };
 
     this.processServerEdits = function( edits ) {
@@ -89,12 +97,45 @@ Sync.Engine = function () {
     };
 
     this.patchShadow = function( patchMsg ) {
-        var shadow = this.getShadow( patchMsg.docId ), edits = patchMsg.edits, i, patched;
+        // First get the shadow document for this doc.id and clientId
+        var i, patched, edit,
+            shadow = this.getShadow( patchMsg.id ),
+            edits = patchMsg.edits;
+        //Iterate over the edits of the doc
         for ( i = 0; i < edits.length; i++ ) {
-            var edit = edits[i];
-            patched = this.applyEditsToShadow( edit, shadow );
-            shadow.doc.content = patched[0];
-            shadow.serverVersion++;
+            edit = edits[i];
+
+            //Check for dropped packets?
+            // edit.clientVersion < shadow.ClientVersion
+            if( edit.clientVersion < shadow.clientVersion ) {
+                // Dropped packet?
+                // restore from back
+                // TODO
+            }
+
+            //check if we already have this one
+            // IF SO discard the edit
+            // edit.serverVersion < shadow.ServerVesion
+            if( edit.serverVersion < shadow.serverVersion ) {
+                // disCard Edit
+                // TODO
+            }
+
+            //make sure the versions match
+            if( edit.serverVersion === shadow.serverVersion && edit.clientVersion === shadow.clientVersion ) {
+                // Good ,  Patch the shadow
+                patched = this.applyEditsToShadow( edit, shadow );
+                // increment the server version
+                // save the shadow back
+                try {
+                    shadow.doc.content = JSON.parse( patched[ 0 ] );
+                } catch( e ) {
+                    shadow.doc.content = patched[ 0 ];
+                }
+                shadow.serverVersion++;
+
+                this._saveShadow( shadow );
+            }
         }
 
         console.log(patched);
@@ -102,48 +143,96 @@ Sync.Engine = function () {
     };
 
     this.applyEditsToShadow = function ( edits, shadow ) {
-        var doc = JSON.stringify( shadow.doc.content),
-            diffs = this._asDiffMatchPathDiffs( edits.diffs ),
-            patches = dmp.patch_make( doc, diffs );
+        var doc, diffs, patches;
+
+        doc = typeof shadow.doc.content === 'string' ? shadow.doc.content : JSON.stringify( shadow.doc.content );
+        diffs = this._asDiffMatchPathDiffs( edits.diffs );
+        patches = dmp.patch_make( doc, diffs );
 
         return dmp.patch_apply( patches, doc );
     };
 
-    this.patchDocument = function( patchMsg ) {
-        console.log(patchMsg);
-        var patches = this.applyEditsToDoc( patchMsg );
-        var doc = this.getDocument( patchMsg.id );
-        console.log('patches: ', patches);
-        doc.content = patches[1][0];
-        return doc;
+    this.patchDocument = function( shadow ) {
+        var doc, diffs, patches, patchApplied;
+
+        // first get the document based on the shadowdocs ID
+        doc = this.getDocument( shadow.id );
+
+        // diff the doc and shadow and patch that shizzel
+        diffs = dmp.diff_main( JSON.stringify( doc.content ), JSON.stringify( shadow.doc.content ) );
+
+        patches = dmp.patch_make( JSON.stringify( doc.content ), diffs );
+
+        patchApplied = dmp.patch_apply( patches, JSON.stringify( doc.content ) );
+
+        //save the newly patched document
+        doc.content = JSON.parse( patchApplied[0] );
+
+        this._saveDocument( doc );
+
+        //return the applied patch?
+        console.log('patches: ', patchApplied);
+        return patchApplied;
     };
 
+    /**
+        Performs the client side patch process.
+
+
+        @param patchMsg the patch message that is sent from the server
+
+        @example:
+
+            {
+                "msgType":"patch",
+                "id":"12345",
+                "clientId":"3346dff7-aada-4d5f-a3da-c93ff0ffc472",
+                "edits":[{
+                        "clientVersion":0,
+                        "serverVersion":0,
+                        "checksum":"5f9844b21c298ea1f3ed7bf37f96e42df03395b",
+                        "diffs":[{
+                            "operation":"UNCHANGED","text":"I'm a Je"},
+                            {"operation":"DELETE","text":"di"
+                        }]
+                }]
+            }"
+    */
     this.patch = function( doc ) {
-        var patchMsg = this.diff( doc );
-        return this.applyEditsToDoc( patchMsg );
+        // Flow is based on the server side
+        // patch the shadow
+        var patchedShadow = this.patchShadow( doc );
+        // Then patch the document
+        this.patchDocument( patchedShadow );
+        // then save backup shadow
+        this._saveShadowBackup( patchedShadow );
+
     };
 
-    this.applyEditsToDoc = function ( patchMsg ) {
-        var doc = JSON.stringify( this.getDocument( patchMsg.docId ).content);
-        var edits = patchMsg.edits;
-        var i;
-        var patches;
-        for (i = 0; i < edits.length; i++) {
-            var edit = edits[i];
-            var diffs = this._asDiffMatchPathDiffs( edit.diffs );
-            var patches = dmp.patch_make( doc, diffs );
-            patches.push( dmp.patch_apply( patches, doc ) );
-        }
-        console.log('patches:', patches);
-        return patches;
-    };
+    /**
+        Do we need this? Looking at the server side engine When something comes in,  we first try to patch the shadow will all the edits, then if successful, we just patch the doc with the shadow
+    */
+    // this.applyEditsToDoc = function ( patchMsg ) {
+    //     var i, patches, edit, diffs,
+    //         doc = JSON.stringify( this.getDocument( patchMsg.id ).content),
+    //         edits = patchMsg.edits;
+
+    //     for (i = 0; i < edits.length; i++) {
+    //         edit = edits[i];
+    //         diffs = this._asDiffMatchPathDiffs( edit.diffs );
+    //         patches = dmp.patch_make( doc, diffs );
+    //         patches.push( dmp.patch_apply( patches, doc ) );
+    //     }
+    //     console.log('patches:', patches);
+    //     return patches;
+    // };
 
     this._saveDocument = function( doc ) {
         dm.stores.docs.save( doc );
     };
 
     this._saveShadow = function( doc ) {
-        var shadow = { id: doc.id, serverVersion: 0, clientId: doc.clientId, clientVersion: 0, doc: doc };
+        var shadow = { id: doc.id, serverVersion: doc.serverVersion || 0, clientId: doc.clientId, clientVersion: doc.clientVersion || 0, doc: doc.doc ? doc.doc : doc };
         dm.stores.shadows.save( shadow );
     };
 
