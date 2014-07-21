@@ -35,7 +35,7 @@ Sync.Engine = function () {
         var diffDoc,
         shadow = dm.stores.shadows.read( doc.id )[0];
 
-        diffDoc = {
+        patchMsg = {
             msgType: 'patch',
             id: doc.id,
             clientId: shadow.clientId,
@@ -52,18 +52,11 @@ Sync.Engine = function () {
         shadow.doc.content = doc.content;
         this._saveShadow( shadow );
 
-        return diffDoc;
-    };
+        // add any pending edits from the store
+        patchMsg.edits = patchMsg.edits.concat( this._getEdits( doc.id ) );
+        this._saveEdits( patchMsg );
 
-    this.processServerEdits = function( edits ) {
-        var doc = this._saveDocument( this.patchDocument( edits ) ),
-            backup = this.getBackup( doc.id );
-
-        this._saveShadow( this.patchShadow( edits ) );
-        backup.content = doc.content;
-        backup.clientVersion++;
-        this._saveBackup( backup );
-        //remove pending edits.
+        return patchMsg;
     };
 
     this._asAeroGearDiffs = function( diffs ) {
@@ -108,17 +101,18 @@ Sync.Engine = function () {
             //Check for dropped packets?
             // edit.clientVersion < shadow.ClientVersion
             if( edit.clientVersion < shadow.clientVersion ) {
-                // Dropped packet?
-                // restore from back
-                // TODO
+                // Dropped packet?  // restore from back
+                shadow = this._restoreBackup( shadow, edit );
+                continue;
             }
 
             //check if we already have this one
             // IF SO discard the edit
             // edit.serverVersion < shadow.ServerVesion
             if( edit.serverVersion < shadow.serverVersion ) {
-                // disCard Edit
-                // TODO
+                // discard edit
+                this._removeEdit( patchMsg.id, edit );
+                continue;
             }
 
             //make sure the versions match
@@ -138,7 +132,7 @@ Sync.Engine = function () {
             }
         }
 
-        console.log(patched);
+        console.log('patched:', patched);
         return shadow;
     };
 
@@ -198,34 +192,16 @@ Sync.Engine = function () {
                 }]
             }"
     */
-    this.patch = function( doc ) {
+    this.patch = function( patchMsg ) {
         // Flow is based on the server side
         // patch the shadow
-        var patchedShadow = this.patchShadow( doc );
+        var patchedShadow = this.patchShadow( patchMsg );
         // Then patch the document
         this.patchDocument( patchedShadow );
         // then save backup shadow
         this._saveShadowBackup( patchedShadow );
 
     };
-
-    /**
-        Do we need this? Looking at the server side engine When something comes in,  we first try to patch the shadow will all the edits, then if successful, we just patch the doc with the shadow
-    */
-    // this.applyEditsToDoc = function ( patchMsg ) {
-    //     var i, patches, edit, diffs,
-    //         doc = JSON.stringify( this.getDocument( patchMsg.id ).content),
-    //         edits = patchMsg.edits;
-
-    //     for (i = 0; i < edits.length; i++) {
-    //         edit = edits[i];
-    //         diffs = this._asDiffMatchPathDiffs( edit.diffs );
-    //         patches = dmp.patch_make( doc, diffs );
-    //         patches.push( dmp.patch_apply( patches, doc ) );
-    //     }
-    //     console.log('patches:', patches);
-    //     return patches;
-    // };
 
     this._saveDocument = function( doc ) {
         dm.stores.docs.save( doc );
@@ -234,6 +210,7 @@ Sync.Engine = function () {
     this._saveShadow = function( doc ) {
         var shadow = { id: doc.id, serverVersion: doc.serverVersion || 0, clientId: doc.clientId, clientVersion: doc.clientVersion || 0, doc: doc.doc ? doc.doc : doc };
         dm.stores.shadows.save( shadow );
+        return shadow;
     };
 
     this._saveShadowBackup = function( doc ) {
@@ -251,6 +228,45 @@ Sync.Engine = function () {
 
     this.getBackup = function( id ) {
         return dm.stores.backups.read( id )[0];
+    };
+
+    this._saveEdits = function( patchMsg ) {
+        var record = { id: patchMsg.id, clientId: patchMsg.clientId, edits: patchMsg.edits};
+        dm.stores.edits.save( record );
+    };
+
+    this._getEdits = function( id ) {
+        var patchMessages = dm.stores.edits.read( id );
+        if ( patchMessages.length === 0 ) {
+            return [];
+        }
+        return patchMessages.edits;
+    };
+
+    this._removeEdit = function( documentId,  edit ) {
+        var patchMessages = dm.stores.edits.read( documentId ), i;
+        if ( patchMessages.length !== 0 ) {
+            var edits = patchMessages.edits;
+            for ( i = 0; i < edits.length; i++ ) {
+                if ( edit[i].serverVersion === edit.serverVersion && edit[i].clientVersion === edit.clientVersion) {
+                    edits.splice(i, 1);
+                };
+            }
+        }
+    };
+
+    this._restoreBackup = function( shadow, edit) {
+        var backup = getBackup( shadow.id ), patchedShadow;
+        if ( edit.clientVersion === backup.clientVersion) {
+            var restored = { id: backup.id, serverVersion: backup.serverVersion, clientId: shadow.clientId, clientVersion: backup.clientVersion, doc: backup.doc };
+            patchedShadow = this.patchShadow( restored );
+            restored.serverVersion++;
+            this._removeEdit( edit );
+            return this._saveShadow( patchedShadow );
+        } else {
+            throw "Edit's clientVersion '" + backup.clientVersion + "' does not match the backups clientVersion '" + backup.clientVersion + "'";
+        }
+        return {};
     };
 
 };
