@@ -62,33 +62,6 @@
         equal( doc.content.name, 'Mr.Poon', 'name should be updated');
     });
 
-    // TODO: fix this test
-    // test( 'patch two documents', function() {
-    //     var engine = Sync.Engine();
-    //     var content = {name: 'Fletch' };
-    //     var doc = { id: 1234, clientId: 'client1', content: content };
-    //     engine.addDocument( doc );
-
-    //     var doc2 = { id: 1234, clientId: 'client2', content: content };
-    //     engine.addDocument( doc2 );
-
-    //     // update the name field
-    //     doc.content.name = 'Mr.Poon';
-
-    //     var patches = engine.patch( doc );
-    //     var patch = patches[1];
-    //     equal( patch[1][0], true, 'patch should have been successful.' );
-    //     equal( patch[0], '{"name":"Mr.Poon"}', 'name should have been updated to Mr.Poon' );
-
-    //     doc2.content.name = 'Dr.Rosen';
-
-    //     var patches2 = engine.patch( doc2 );
-    //     var patch2 = patches2[1];
-    //     equal( patch2[1][0], true, 'patch should have been successful.' );
-    //     equal( patch2[0], '{"name":"Dr.Rosen"}', 'name should have been updated to Dr.Rosen' );
-
-    // });
-
     test( 'patch shadow - content is a String', function() {
         var engine = Sync.Engine();
         var dmp = new diff_match_patch();
@@ -150,6 +123,37 @@
 
         updatedShadow = engine.patchShadow( patchMsg );
         console.log(updatedShadow);
+        equal( JSON.stringify(updatedShadow.doc.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
+        equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
+        equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
+    });
+
+    test( 'already seen edit should be deleted', function() {
+        var engine = Sync.Engine();
+        var dmp = new diff_match_patch();
+        var content = { name: 'Fletch' };
+        var doc = { id: 1234, clientId: 'client1', content: content };
+        var shadow;
+        engine.addDocument( doc );
+        doc.content.name = 'John Coctolstol';
+
+        shadow = engine.getShadow( doc.id );
+        var patchMsg = {
+            msgType: 'patch',
+            id: doc.id,
+            clientId: shadow.clientId,
+            edits: [{
+                clientVersion: shadow.clientVersion,
+                serverVersion: shadow.serverVersion,
+                checksum: '',
+                diffs: engine._asAeroGearDiffs( dmp.diff_main( JSON.stringify( shadow.doc.content ), JSON.stringify( doc.content ) ) )
+            }]
+        };
+
+        // patch twice, second patch should not change the outcome and should simply be discarded.
+        engine.patchShadow( patchMsg );
+        updatedShadow = engine.patchShadow( patchMsg );
+
         equal( JSON.stringify(updatedShadow.doc.content), '{"name":"John Coctolstol"}', 'name should have been updated to John Coctolstol' );
         equal( shadow.serverVersion, 1, 'Server version should have been updated.' );
         equal( shadow.clientVersion, 0, 'Client version should not have been updated.' );
