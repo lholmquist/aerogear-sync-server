@@ -106,7 +106,7 @@ var app = {
         console.log( 'initing' );
 
         this.initializing = true;
-        this.syncClient = new Sync.Client({
+        this.syncClient = new AeroGear.SyncClient({
             serverUrl: 'ws://localhost:7777/sync',
             onmessage: this.onmessage,
             onopen: this.onopen,
