@@ -26,6 +26,9 @@ import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
+import java.math.BigInteger;
+import java.nio.charset.Charset;
+import java.security.MessageDigest;
 import java.util.Queue;
 
 /**
@@ -33,12 +36,14 @@ import java.util.Queue;
  */
 public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode, JsonPatchEdit> {
 
+    private static final String UTF_8 = Charset.forName("UTF-8").displayName();
+
     @Override
     public JsonPatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
         return JsonPatchEdit.withDocumentId(document.id())
                 .clientId(shadowDocument.document().clientId())
-                //.checksum(checksum(shadowObject))
+                .checksum(checksum(shadowObject))
                 .diff(JsonDiff.asJsonPatch(document.content(), shadowObject))
                 .build();
     }
@@ -50,7 +55,7 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
                 .clientId(shadowDocument.document().clientId())
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
-                //.checksum(checksum(shadowObject))
+                .checksum(checksum(shadowObject))
                 .diff(JsonDiff.asJsonPatch(shadowObject, document.content()))
                 .build();
     }
@@ -60,18 +65,6 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
         final JsonNode content = patch(edit, shadowDocument.document().content());
         return new DefaultShadowDocument<JsonNode>(shadowDocument.serverVersion(), shadowDocument.clientVersion(),
                 new DefaultClientDocument<JsonNode>(shadowDocument.document().id(), shadowDocument.document().clientId(), content));
-    }
-
-    private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
-        JsonNode patched = target.deepCopy();
-        try {
-            for (JsonPatchDiff diff : edit.diffs()) {
-                patched = diff.jsonPatch().apply(patched);
-            }
-        } catch (final Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        return patched;
     }
 
     @Override
@@ -90,6 +83,28 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     @Override
     public PatchMessage<JsonPatchEdit> patchMessageFromJson(String json) {
         return JsonMapper.fromJson(json, JsonPatchMessage.class);
+    }
+
+    private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
+        JsonNode patched = target.deepCopy();
+        try {
+            for (JsonPatchDiff diff : edit.diffs()) {
+                patched = diff.jsonPatch().apply(patched);
+            }
+        } catch (final Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+        return patched;
+    }
+
+    public static String checksum(final JsonNode content) {
+        try {
+            final MessageDigest md = MessageDigest.getInstance( "SHA1" );
+            md.update(content.asText().getBytes(UTF_8));
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (final Exception e) {
+            throw new RuntimeException(e.getMessage(), e.getCause());
+        }
     }
 
 }
