@@ -58,12 +58,46 @@ public class JsonMapperTest {
         assertThat(patchMessage.edits().peek().diffs().peek().jsonPatch().toString(), equalTo(patch.toString()));
     }
 
+    @Test
+    public void jsonPatchEditToJson() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final String json = JsonMapper.toJson(jsonPatchEdit(documentId, clientId, jsonPatch()));
+        final JsonNode edit = JsonMapper.asJsonNode(json);
+        assertThat(edit.get("serverVersion").asText(), equalTo("0"));
+        assertThat(edit.get("clientVersion").asText(), equalTo("0"));
+        final JsonNode diffs = edit.get("diffs");
+        assertThat(diffs.isArray(), is(true));
+        final JsonNode patch = diffs.get(0).get(0);
+        assertThat(patch.get("op").asText(), equalTo("replace"));
+        assertThat(patch.get("path").asText(), equalTo("/name"));
+        assertThat(patch.get("value").asText(), equalTo("Fletch"));
+    }
+
+    @Test
+    public void jsonPatchEditFromJson() {
+        final String documentId = "1234";
+        final String clientId = "client1";
+        final JsonPatch patch = jsonPatch();
+        final String json = JsonMapper.toJson(jsonPatchEdit(documentId, clientId, patch));
+        final JsonPatchEdit edit = JsonMapper.fromJson(json, JsonPatchEdit.class);
+        assertThat(edit.documentId(), equalTo(documentId));
+        assertThat(edit.clientId(), equalTo(clientId));
+        assertThat(edit.diffs().size(), is(1));
+        assertThat(edit.diffs().size(), is(1));
+        assertThat(edit.diffs().peek().jsonPatch().toString(), equalTo(patch.toString()));
+    }
+
     private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId, final String clientId) {
         final JsonPatch jsonPatch = jsonPatch();
-        return patchMessage(documentId, clientId, JsonPatchEdit.withDocumentId(documentId)
+        return patchMessage(documentId, clientId, jsonPatchEdit(documentId, clientId, jsonPatch));
+    }
+
+    private static JsonPatchEdit jsonPatchEdit(final String documentId, final String clientId, final JsonPatch patch) {
+        return JsonPatchEdit.withDocumentId(documentId)
                 .clientId(clientId)
-                .diff(jsonPatch)
-                .build());
+                .diff(patch)
+                .build();
     }
 
     private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId,

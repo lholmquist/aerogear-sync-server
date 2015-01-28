@@ -140,8 +140,7 @@ public final class JsonMapper {
                             if (d.isNull()) {
                                 continue;
                             }
-                            final JsonPatch patch = JsonPatch.fromJson(d);
-                            eb.diff(patch);
+                            eb.diff(JsonPatch.fromJson(d));
                         }
                     }
                     edits.add(eb.build());
@@ -200,8 +199,7 @@ public final class JsonMapper {
             final JsonNode diffsNode = edit.get("diffs");
             if (diffsNode.isArray()) {
                 for (JsonNode d : diffsNode) {
-                    final JsonPatch patch = om.readValue(d.get("patch").asText(), JsonPatch.class);
-                    eb.diff(patch);
+                    eb.diff(JsonPatch.fromJson(d));
                 }
             }
             return eb.build();
@@ -224,9 +222,7 @@ public final class JsonMapper {
             jgen.writeArrayFieldStart("diffs");
             if (!edit.diffs().isEmpty()) {
                 for (JsonPatchDiff diff : edit.diffs()) {
-                    jgen.writeArrayFieldStart("patch");
                     diff.jsonPatch().serialize(jgen, provider);
-                    jgen.writeEndArray();
                 }
             }
             jgen.writeEndArray();
