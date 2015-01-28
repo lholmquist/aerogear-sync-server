@@ -6,6 +6,7 @@ import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.diff.JsonDiff;
 import org.junit.Test;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -19,6 +20,8 @@ public class JsonPatchEditTest {
         final JsonPatch jsonPatch = JsonDiff.asJsonPatch(source, target);
         final JsonPatchEdit edit = JsonPatchEdit.withDocumentId("1234").clientId("client1").diff(jsonPatch).build();
         assertThat(edit.diffs().isEmpty(), is(false));
+        assertThat(edit.diffs().get(0).jsonPatch(), equalTo(jsonPatch));
     }
+
 
 }
