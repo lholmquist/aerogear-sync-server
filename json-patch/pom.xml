@@ -37,6 +37,10 @@
         <artifactId>sync-core</artifactId>
       </dependency>
       <dependency>
+          <groupId>com.github.fge</groupId>
+          <artifactId>json-patch</artifactId>
+      </dependency>
+      <dependency>
         <groupId>junit</groupId>
         <artifactId>junit</artifactId>
       </dependency>
