@@ -42,6 +42,7 @@
         <module>api</module>
         <module>core</module>
         <module>diffmatchpatch</module>
+        <module>json-patch</module>
         <module>server-core</module>
         <module>client-core</module>
         <module>client-netty</module>

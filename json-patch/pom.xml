@@ -23,9 +23,9 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>sync-diffmatchpatch</artifactId>
+    <artifactId>sync-json-patch</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization DiffMatchPatch</name>
+    <name>AeroGear Data Synchronization JSON Patch</name>
 
     <dependencies>
       <dependency>

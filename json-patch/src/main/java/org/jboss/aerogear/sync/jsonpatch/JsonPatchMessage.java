@@ -14,11 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.jsonpatch;
+
+import org.jboss.aerogear.sync.PatchMessage;
 
 import java.util.Queue;
 
-public class JsonPatchMessage implements PatchMessage {
+public class JsonPatchMessage implements PatchMessage<JsonPatchEdit> {
 
     private final String documentId;
     private final String clientId;
