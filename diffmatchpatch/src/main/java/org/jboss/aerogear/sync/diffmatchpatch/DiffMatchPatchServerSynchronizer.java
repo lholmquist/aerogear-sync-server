@@ -16,12 +16,8 @@
  */
 package org.jboss.aerogear.sync.diffmatchpatch;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.*;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
-import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
 import java.util.LinkedList;
@@ -98,6 +94,20 @@ public class DiffMatchPatchServerSynchronizer implements ServerSynchronizer<Stri
     @Override
     public PatchMessage<DiffMatchPatchEdit> patchMessageFromJson(String json) {
         return JsonMapper.fromJson(json, DiffMatchPatchMessage.class);
+    }
+
+    @Override
+    public Document<String> documentFromJson(JsonNode json) {
+        final JsonNode contentNode = json.get("content");
+        String content = null;
+        if (contentNode != null && !contentNode.isNull()) {
+            if (contentNode.isArray() || contentNode.isObject()) {
+                content = JsonMapper.toString(contentNode);
+            } else {
+                content = contentNode.asText();
+            }
+        }
+        return new DefaultDocument<String>(json.get("id").asText(), content);
     }
 
     private LinkedList<Patch> patchesFrom(final DiffMatchPatchEdit edit) {

@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,8 +63,12 @@ public class ServerSyncEngine<T, S extends Edit> {
         return addDocument(document, subscriber.clientId());
     }
 
-    public PatchMessage<S> fromJson(final String json) {
+    public PatchMessage<S> patchMessagefromJson(final String json) {
         return synchronizer.patchMessageFromJson(json);
+    }
+
+    public Document<T> documentFromJson(final JsonNode json) {
+        return synchronizer.documentFromJson(json);
     }
 
     private PatchMessage<S> addDocument(final Document<T> document, final String clientId) {

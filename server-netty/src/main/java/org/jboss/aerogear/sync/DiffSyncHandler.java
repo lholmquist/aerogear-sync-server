@@ -26,8 +26,6 @@ import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.util.AttributeKey;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.jboss.aerogear.sync.server.MessageType;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
@@ -37,14 +35,14 @@ import org.slf4j.LoggerFactory;
 import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
 
 @ChannelHandler.Sharable
-public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
+public class DiffSyncHandler<T, S extends Edit> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncHandler.class);
     private static final AttributeKey<Boolean> DOC_ADD = AttributeKey.valueOf(DiffSyncHandler.class, "DOC_ADD");
 
-    private final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine;
+    private final ServerSyncEngine<T, S> syncEngine;
 
-    public DiffSyncHandler(final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine) {
+    public DiffSyncHandler(final ServerSyncEngine<T, S> syncEngine) {
         this.syncEngine = syncEngine;
     }
 
@@ -61,14 +59,14 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
             logger.info("Doc:" + json);
             switch (MessageType.from(json.get("msgType").asText())) {
             case ADD:
-                final Document<String> doc = documentFromJson(json);
+                final Document<T> doc = syncEngine.documentFromJson(json);
                 final String clientId = json.get("clientId").asText();
-                final PatchMessage<DiffMatchPatchEdit> patchMessage = addSubscriber(doc, clientId, ctx);
+                final PatchMessage<S> patchMessage = addSubscriber(doc, clientId, ctx);
                 ctx.attr(DOC_ADD).set(true);
                 ctx.channel().writeAndFlush(textFrame(toJson(patchMessage)));
                 break;
             case PATCH:
-                final PatchMessage<DiffMatchPatchEdit> clientPatchMessage = JsonMapper.fromJson(json.toString(), DiffMatchPatchMessage.class);
+                final PatchMessage<S> clientPatchMessage = syncEngine.patchMessagefromJson(json.toString());
                 checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId(), ctx);
                 logger.debug("Client Edits=" + clientPatchMessage);
                 patch(clientPatchMessage);
@@ -85,7 +83,7 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         }
     }
 
-    private PatchMessage<DiffMatchPatchEdit> addSubscriber(final Document<String> document,
+    private PatchMessage<S> addSubscriber(final Document<T> document,
                                        final String clientId,
                                        final ChannelHandlerContext ctx) {
         final NettySubscriber subscriber = new NettySubscriber(clientId, ctx);
@@ -93,21 +91,8 @@ public class DiffSyncHandler extends SimpleChannelInboundHandler<WebSocketFrame>
         return syncEngine.addSubscriber(subscriber, document);
     }
 
-    private void patch(final PatchMessage<DiffMatchPatchEdit> clientEdit) {
+    private void patch(final PatchMessage<S> clientEdit) {
         syncEngine.patchAndNotifySubscribers(clientEdit);
-    }
-
-    private static Document<String> documentFromJson(final JsonNode json) {
-        final JsonNode contentNode = json.get("content");
-        String content = null;
-        if (contentNode != null && !contentNode.isNull()) {
-            if (contentNode.isArray() || contentNode.isObject()) {
-                content = JsonMapper.toString(contentNode);
-            } else {
-                content = contentNode.asText();
-            }
-        }
-        return new DefaultDocument<String>(json.get("id").asText(), content);
     }
 
     private void checkForReconnect(final String documentId, final String clientId, final ChannelHandlerContext ctx) {

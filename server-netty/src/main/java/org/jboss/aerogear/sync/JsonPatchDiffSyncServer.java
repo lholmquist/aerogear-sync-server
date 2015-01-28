@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -27,18 +28,15 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchInMemoryDataStore;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchServerSynchronizer;
+import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
+import org.jboss.aerogear.sync.jsonpatch.JsonPatchInMemoryDataStore;
+import org.jboss.aerogear.sync.jsonpatch.JsonPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
-import org.jboss.aerogear.sync.server.ServerSynchronizer;
-
-import java.util.concurrent.Executors;
 
 /**
  * A Netty based WebSocket server that is able to handle differential synchronization edits.
  */
-public final class DiffSyncServer {
+public final class JsonPatchDiffSyncServer {
 
     private static final String DEFAULT_CONFIG = "/sync.config";
 
@@ -47,10 +45,11 @@ public final class DiffSyncServer {
         final StandaloneConfig config = ConfigReader.parse(configFile);
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
-        final ServerSynchronizer<String, DiffMatchPatchEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
-        final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(synchronizer, dataStore);
-        final DiffSyncHandler<String, DiffMatchPatchEdit> diffSyncHandler = new DiffSyncHandler<String, DiffMatchPatchEdit>(syncEngine);
+
+        final JsonPatchServerSynchronizer synchronizer = new JsonPatchServerSynchronizer();
+        final JsonPatchInMemoryDataStore dataStore = new JsonPatchInMemoryDataStore();
+        final ServerSyncEngine<JsonNode, JsonPatchEdit> syncEngine = new ServerSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
+        final DiffSyncHandler<JsonNode, JsonPatchEdit> diffSyncHandler = new DiffSyncHandler<JsonNode, JsonPatchEdit>(syncEngine);
         try {
             final ServerBootstrap sb = new ServerBootstrap();
             sb.group(bossGroup, workerGroup)
@@ -66,10 +65,6 @@ public final class DiffSyncServer {
                                     diffSyncHandler);
                         }
                     });
-
-            if (config.isGcmEnabled()) {
-                sb.handler(new GcmHandler(config, syncEngine, Executors.newSingleThreadExecutor()));
-            }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
             System.out.println("SyncServer bound to " + config.host() + ':' + config.port());

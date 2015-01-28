@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.server;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
@@ -70,5 +71,7 @@ public interface ServerSynchronizer<T, S extends Edit> {
     PatchMessage<S> createPatchMessage(String documentId, String clientId, Queue<S> edits);
 
     PatchMessage<S> patchMessageFromJson(String json);
+
+    Document<T> documentFromJson(JsonNode json);
 
 }

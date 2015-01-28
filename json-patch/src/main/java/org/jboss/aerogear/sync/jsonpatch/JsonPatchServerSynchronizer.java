@@ -85,6 +85,11 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
         return JsonMapper.fromJson(json, JsonPatchMessage.class);
     }
 
+    @Override
+    public Document<JsonNode> documentFromJson(JsonNode json) {
+        return new DefaultDocument<JsonNode>(json.get("id").asText(), json.get("content"));
+    }
+
     private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
         JsonNode patched = target.deepCopy();
         try {
