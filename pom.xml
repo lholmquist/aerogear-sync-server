@@ -43,11 +43,8 @@
         <module>core</module>
         <module>diffmatchpatch</module>
         <module>json-patch</module>
-        <module>server-core</module>
-        <module>client-core</module>
-        <module>client-netty</module>
-        <module>server-netty</module>
-        <module>server-xmpp</module>
+        <module>server</module>
+        <module>client</module>
         <module>itests</module>
     </modules>
 

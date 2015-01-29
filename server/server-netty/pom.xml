@@ -19,13 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.aerogear</groupId>
-        <artifactId>sync-parent</artifactId>
+        <artifactId>sync-server-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>sync-server-netty</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization Netty Server</name>
+    <name>AeroGear Data Synchronization Server Netty</name>
 
     <build>
         <plugins>
