@@ -25,7 +25,7 @@
     </parent>
     <artifactId>sync-diffmatchpatch-server</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization DiffMatchPatch Server</name>
+    <name>AeroGear Data Synchronizer DiffMatchPatch Server</name>
 
     <dependencies>
       <dependency>

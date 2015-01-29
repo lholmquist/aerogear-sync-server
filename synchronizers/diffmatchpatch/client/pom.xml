@@ -23,9 +23,9 @@
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-    <artifactId>sync-diffmatchpatch-core</artifactId>
+    <artifactId>sync-diffmatchpatch-client</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization DiffMatchPatch Core</name>
+    <name>AeroGear Data Synchronizer DiffMatchPatch Client</name>
 
     <dependencies>
       <dependency>
@@ -35,6 +35,10 @@
       <dependency>
         <groupId>org.jboss.aerogear</groupId>
         <artifactId>sync-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.jboss.aerogear</groupId>
+        <artifactId>sync-diffmatchpatch-core</artifactId>
       </dependency>
       <dependency>
         <groupId>junit</groupId>

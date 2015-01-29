@@ -29,8 +29,8 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchInMemoryDataStore;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchServerSynchronizer;
+import org.jboss.aerogear.sync.jsonpatch.server.JsonPatchInMemoryDataStore;
+import org.jboss.aerogear.sync.jsonpatch.server.JsonPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 
 /**

@@ -19,13 +19,13 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.jboss.aerogear</groupId>
-        <artifactId>sync-parent</artifactId>
+        <artifactId>sync-synchronizers-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>sync-json-patch</artifactId>
     <packaging>pom</packaging>
-    <name>AeroGear Data Synchronization JSON Patch</name>
+    <name>AeroGear Data Synchronizer JSON Patch Parent</name>
 
     <modules>
         <module>core</module>

@@ -67,7 +67,7 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-json-patch</artifactId>
+            <artifactId>sync-json-patch-server</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>

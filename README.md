@@ -21,6 +21,9 @@ Contains the interfaces for the server and client, plus definitions of common ty
 Contains a base implementation of the common types from the [api](./api) module. These are used by both the
 [client-core](./client-core) and the [server-core](./server-core) modules.
 
+* [synchronizers](./synchronizers)  
+Contains a implementations that perform the synchronization operations in the Differential Synchronization algorithm.
+
 * [server](./server)  
 Contains a concrete implementations of the server side core API. These implementation is inteded to be "embedded" in a server
 component, like a Servlet, a Netty server, etc.

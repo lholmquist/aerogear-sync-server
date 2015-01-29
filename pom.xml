@@ -41,8 +41,7 @@
     <modules>
         <module>api</module>
         <module>core</module>
-        <module>diffmatchpatch</module>
-        <module>json-patch</module>
+        <module>synchronizers</module>
         <module>server</module>
         <module>client</module>
         <module>itests</module>
