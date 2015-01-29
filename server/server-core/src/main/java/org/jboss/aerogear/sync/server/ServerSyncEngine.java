@@ -63,8 +63,12 @@ public class ServerSyncEngine<T, S extends Edit> {
         return addDocument(document, subscriber.clientId());
     }
 
-    public PatchMessage<S> patchMessagefromJson(final String json) {
+    public PatchMessage<S> patchMessageFromJson(final String json) {
         return synchronizer.patchMessageFromJson(json);
+    }
+
+    public String patchMessageToJson(final PatchMessage<S> patchMessage) {
+        return synchronizer.patchMessageToJson(patchMessage);
     }
 
     public Document<T> documentFromJson(final JsonNode json) {

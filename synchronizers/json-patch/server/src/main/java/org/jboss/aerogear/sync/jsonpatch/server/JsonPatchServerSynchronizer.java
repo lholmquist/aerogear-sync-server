@@ -90,6 +90,11 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     }
 
     @Override
+    public String patchMessageToJson(PatchMessage<JsonPatchEdit> patchMessage) {
+        return JsonMapper.toJson(patchMessage);
+    }
+
+    @Override
     public Document<JsonNode> documentFromJson(JsonNode json) {
         return new DefaultDocument<JsonNode>(json.get("id").asText(), json.get("content"));
     }

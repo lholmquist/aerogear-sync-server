@@ -32,8 +32,6 @@ import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
-
 @ChannelHandler.Sharable
 public class DiffSyncHandler<T, S extends Edit> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
@@ -63,10 +61,10 @@ public class DiffSyncHandler<T, S extends Edit> extends SimpleChannelInboundHand
                 final String clientId = json.get("clientId").asText();
                 final PatchMessage<S> patchMessage = addSubscriber(doc, clientId, ctx);
                 ctx.attr(DOC_ADD).set(true);
-                ctx.channel().writeAndFlush(textFrame(toJson(patchMessage)));
+                ctx.channel().writeAndFlush(textFrame(syncEngine.patchMessageToJson(patchMessage)));
                 break;
             case PATCH:
-                final PatchMessage<S> clientPatchMessage = syncEngine.patchMessagefromJson(json.toString());
+                final PatchMessage<S> clientPatchMessage = syncEngine.patchMessageFromJson(json.toString());
                 checkForReconnect(clientPatchMessage.documentId(), clientPatchMessage.clientId(), ctx);
                 logger.debug("Client Edits=" + clientPatchMessage);
                 patch(clientPatchMessage);

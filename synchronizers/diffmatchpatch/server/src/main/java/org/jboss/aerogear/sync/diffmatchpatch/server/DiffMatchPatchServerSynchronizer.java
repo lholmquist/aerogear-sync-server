@@ -102,6 +102,11 @@ public class DiffMatchPatchServerSynchronizer implements ServerSynchronizer<Stri
     }
 
     @Override
+    public String patchMessageToJson(PatchMessage<DiffMatchPatchEdit> patchMessage) {
+        return JsonMapper.toJson(patchMessage);
+    }
+
+    @Override
     public Document<String> documentFromJson(JsonNode json) {
         final JsonNode contentNode = json.get("content");
         String content = null;
