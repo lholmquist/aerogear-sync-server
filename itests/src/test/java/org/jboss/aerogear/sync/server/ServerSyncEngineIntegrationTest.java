@@ -26,11 +26,11 @@ import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.client.ClientDataStore;
-import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
+import org.jboss.aerogear.sync.diffmatchpatch.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
-import org.jboss.aerogear.sync.client.DefaultClientSynchronizer;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchInMemoryDataStore;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchServerSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchInMemoryDataStore;
+import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -28,8 +28,8 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchInMemoryDataStore;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchServerSynchronizer;
+import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchInMemoryDataStore;
+import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 

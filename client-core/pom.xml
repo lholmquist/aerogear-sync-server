@@ -34,7 +34,8 @@
         </dependency>
         <dependency>
             <groupId>org.jboss.aerogear</groupId>
-            <artifactId>sync-diffmatchpatch</artifactId>
+            <artifactId>sync-diffmatchpatch-client</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
