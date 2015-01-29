@@ -19,6 +19,7 @@ package org.jboss.aerogear.sync;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.junit.Test;
 
@@ -30,8 +31,11 @@ public class JsonPatchClientIntegrationTest {
         final ObjectNode originalVersion = objectMapper.createObjectNode().put("name", "fletch");
         final String documentId = "1234";
         final String clientId = "client2";
-
+        final JsonPatchClientSynchronizer synchronizer = new JsonPatchClientSynchronizer();
+        final JsonPatchClientInMemoryDataStore dataStore = new JsonPatchClientInMemoryDataStore();
+        final ClientSyncEngine<JsonNode, JsonPatchEdit> clientSyncEngine = new ClientSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
         final DiffSyncClient<JsonNode, JsonPatchEdit> client = DiffSyncClient.<JsonNode, JsonPatchEdit>forHost("localhost")
+                .syncEngine(clientSyncEngine)
                 .port(7777)
                 .path("/sync")
                 .build();

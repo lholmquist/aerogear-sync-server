@@ -97,6 +97,11 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
         return JsonMapper.fromJson(json, DiffMatchPatchMessage.class);
     }
 
+    @Override
+    public DiffMatchPatchEdit editFromJson(String json) {
+        return JsonMapper.fromJson(json, DiffMatchPatchEdit.class);
+    }
+
     private LinkedList<Patch> patchesFrom(final DiffMatchPatchEdit edit) {
         return diffMatchPatch.patchMake(asDiffUtilDiffs(edit.diffs()));
     }

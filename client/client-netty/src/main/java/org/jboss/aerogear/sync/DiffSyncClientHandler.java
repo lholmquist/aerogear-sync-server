@@ -52,7 +52,7 @@ public class DiffSyncClientHandler<T, S extends Edit> extends SimpleChannelInbou
             logger.info("json: " + json);
             switch (MessageType.from(json.get("msgType").asText())) {
             case PATCH:
-                final PatchMessage<S> serverPatchMessage = syncEngine.fromJson(json.toString());
+                final PatchMessage<S> serverPatchMessage = syncEngine.patchMessageFromJson(json.toString());
                 logger.info("Edits: " + serverPatchMessage);
                 patch(serverPatchMessage);
                 break;

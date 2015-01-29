@@ -27,6 +27,7 @@ import org.jboss.aerogear.sync.ShadowDocument;
 
 import java.util.Iterator;
 import java.util.Observable;
+import java.util.Queue;
 
 /**
  * The client side of the differential synchronization implementation.
@@ -91,8 +92,16 @@ public class ClientSyncEngine<T, S extends Edit> extends Observable {
         saveBackupShadow(patchedShadow);
     }
 
-    public PatchMessage<S> fromJson(final String json) {
+    public PatchMessage<S> patchMessageFromJson(final String json) {
         return clientSynchronizer.patchMessageFromJson(json);
+    }
+
+    public S editFromJson(final String json) {
+        return clientSynchronizer.editFromJson(json);
+    }
+
+    public PatchMessage<S> createPatchMessage(final String documentId, final String clientId, final Queue<S> edits) {
+        return clientSynchronizer.createPatchMessage(documentId, clientId, edits);
     }
 
     private ShadowDocument<T> diffPatchShadow(final ShadowDocument<T> shadow, final S edit) {

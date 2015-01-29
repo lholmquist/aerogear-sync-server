@@ -71,5 +71,6 @@ public interface ClientSynchronizer<T, S extends Edit> {
     PatchMessage<S> createPatchMessage(String documentId, String clientId, Queue<S> edits);
 
     PatchMessage<S> patchMessageFromJson(String json);
+    S editFromJson(String json);
 
 }
