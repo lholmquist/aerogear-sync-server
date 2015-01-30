@@ -68,7 +68,7 @@ public final class DiffMatchPatchSyncServer {
                     });
 
             if (config.isGcmEnabled()) {
-                sb.handler(new GcmHandler(config, syncEngine, Executors.newSingleThreadExecutor()));
+                sb.handler(new GcmHandler<String, DiffMatchPatchEdit>(config, syncEngine, Executors.newSingleThreadExecutor()));
             }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();

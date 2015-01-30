@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import java.util.UUID;
 
 import static org.jboss.aerogear.sync.GcmMessages.createJsonMessage;
-import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
 
 public class GcmSubscriber implements Subscriber<XMPPConnection> {
 
@@ -54,7 +53,7 @@ public class GcmSubscriber implements Subscriber<XMPPConnection> {
     @Override
     public void patched(final PatchMessage<?> patchMessage) {
         try {
-            send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), toJson(patchMessage)));
+            send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), patchMessage.asJson()));
         } catch (Exception ex) {
             Logger.getLogger(GcmSubscriber.class.getName()).log(Level.SEVERE, null, ex);
             //throw new RuntimeException(ex);

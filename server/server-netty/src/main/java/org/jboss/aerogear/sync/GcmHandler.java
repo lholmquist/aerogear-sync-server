@@ -18,7 +18,6 @@ package org.jboss.aerogear.sync;
 
 import io.netty.channel.ChannelHandlerAdapter;
 import io.netty.channel.ChannelHandlerContext;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.ConnectionListener;
@@ -38,18 +37,18 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
-public class GcmHandler extends ChannelHandlerAdapter {
+public class GcmHandler<T, S extends Edit> extends ChannelHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GcmHandler.class);
 
     private final StandaloneConfig syncConfig;
-    private final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine;
+    private final ServerSyncEngine<T, S> syncEngine;
     private final ExecutorService executorService;
 
     private XMPPConnection connection;
 
     public GcmHandler(final StandaloneConfig syncConfig,
-                      final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine,
+                      final ServerSyncEngine<T, S> syncEngine,
                       final ExecutorService executorService) {
         this.syncConfig = syncConfig;
         this.syncEngine = syncEngine;
@@ -90,7 +89,7 @@ public class GcmHandler extends ChannelHandlerAdapter {
         connection.addConnectionListener(new LoggingConnectionListener());
 
         // Handle incoming packets
-        connection.addPacketListener(new GcmDiffSyncHandler(syncEngine, connection), new PacketTypeFilter(Message.class));
+        connection.addPacketListener(new GcmDiffSyncHandler<T, S>(syncEngine, connection), new PacketTypeFilter(Message.class));
 
         // Log all outgoing packets
         connection.addPacketInterceptor(new PacketInterceptor() {

@@ -33,6 +33,8 @@ import org.jboss.aerogear.sync.jsonpatch.server.JsonPatchServerSynchronizer;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 
+import java.util.concurrent.Executors;
+
 /**
  * A Netty based WebSocket server that is able to handle differential synchronization edits.
  */
@@ -65,6 +67,9 @@ public final class JsonPatchSyncServer {
                                     diffSyncHandler);
                         }
                     });
+            if (config.isGcmEnabled()) {
+                sb.handler(new GcmHandler<JsonNode, JsonPatchEdit>(config, syncEngine, Executors.newSingleThreadExecutor()));
+            }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
             System.out.println("JsonPatchSyncServer bound to " + config.host() + ':' + config.port());

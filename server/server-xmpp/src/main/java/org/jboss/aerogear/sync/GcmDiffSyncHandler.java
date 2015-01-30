@@ -16,8 +16,6 @@
  */
 package org.jboss.aerogear.sync;
 
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPConnection;
@@ -45,16 +43,14 @@ import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jivesoftware.smack.PacketListener;
 
 import static org.jboss.aerogear.sync.GcmMessages.createJsonMessage;
-import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.fromJson;
-import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
 
-public class GcmDiffSyncHandler implements PacketListener {
+public class GcmDiffSyncHandler<T, S extends Edit> implements PacketListener {
 
     private static final Logger logger = Logger.getLogger(GcmDiffSyncHandler.class.getCanonicalName());
     private static final String GCM_ELEMENT_NAME = "gcm";
     private static final String GCM_NAMESPACE = "google:mobile:data";
     private XMPPConnection connection;
-    private final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine;
+    private final ServerSyncEngine<T, S> syncEngine;
 
     /**
      * Indicates whether the connection is in draining state, which means that
@@ -74,7 +70,7 @@ public class GcmDiffSyncHandler implements PacketListener {
                 });
     }
 
-    public GcmDiffSyncHandler(final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine, XMPPConnection connection) {
+    public GcmDiffSyncHandler(final ServerSyncEngine<T, S> syncEngine, XMPPConnection connection) {
         this.connection = connection;
         this.syncEngine = syncEngine;
     }
@@ -189,14 +185,14 @@ public class GcmDiffSyncHandler implements PacketListener {
         final String diffsyncClientId = clientIdFromJson(syncMessage);
         switch (MessageType.from(syncMessage.get("msgType").asText())) {
             case ADD:
-                final Document<String> doc = documentFromJson(syncMessage);
-                final PatchMessage<DiffMatchPatchEdit> patchMessage = addSubscriber(doc, diffsyncClientId, googleRegistrationId);
-                send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), toJson(patchMessage)));
+                final Document<T> doc = syncEngine.documentFromJson(syncMessage);
+                final PatchMessage<S> patchMessage = addSubscriber(doc, diffsyncClientId, googleRegistrationId);
+                send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), patchMessage.asJson()));
                 break;
             case PATCH:
-                final PatchMessage<DiffMatchPatchEdit> clientPatchMessage = fromJson(syncMessage.toString(), DiffMatchPatchMessage.class);
+                final PatchMessage<S> clientPatchMessage = syncEngine.patchMessageFromJson(syncMessage.toString());
+                logger.info("Client Edits=" + clientPatchMessage);
                 checkForReconnect(clientPatchMessage.documentId(), googleRegistrationId, diffsyncClientId);
-                logger.log(Level.FINER, "Client Edits=" + clientPatchMessage);
                 patch(clientPatchMessage);
                 break;
             case DETACH:
@@ -208,14 +204,14 @@ public class GcmDiffSyncHandler implements PacketListener {
         }
     }
 
-    private PatchMessage<DiffMatchPatchEdit> addSubscriber(final Document<String> document,
+    private PatchMessage<S> addSubscriber(final Document<T> document,
                                        final String clientId,
                                        final String googleRegistrationId) {
         final GcmSubscriber gcmSubscriber = new GcmSubscriber(clientId, googleRegistrationId, connection);
         return syncEngine.addSubscriber(gcmSubscriber, document);
     }
 
-    private void patch(final PatchMessage<DiffMatchPatchEdit> clientEdit) {
+    private void patch(final PatchMessage<S> clientEdit) {
         syncEngine.patchAndNotifySubscribers(clientEdit);
     }
 
@@ -225,19 +221,6 @@ public class GcmDiffSyncHandler implements PacketListener {
     protected void send(String jsonRequest) throws SmackException.NotConnectedException {
         Packet request = new GcmPacketExtension(jsonRequest).toPacket();
         connection.sendPacket(request);
-    }
-
-    private static Document<String> documentFromJson(final JsonNode json) {
-        final JsonNode contentNode = json.get("content");
-        String content = null;
-        if (contentNode != null && !contentNode.isNull()) {
-            if (contentNode.isArray() || contentNode.isObject()) {
-                content = JsonMapper.toString(contentNode);
-            } else {
-                content = contentNode.asText();
-            }
-        }
-        return new DefaultDocument<String>(json.get("id").asText(), content);
     }
 
     private void checkForReconnect(final String documentId, final String registrationId, final String clientId) {
