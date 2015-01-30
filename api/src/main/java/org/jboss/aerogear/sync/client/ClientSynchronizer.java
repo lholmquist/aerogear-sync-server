@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.sync.client;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.Edit;
@@ -26,7 +25,7 @@ import org.jboss.aerogear.sync.ShadowDocument;
 import java.util.Queue;
 
 /**
- * A instance of this class will be able to handle tasks needed to implement
+ * An instance of this class will be able to handle tasks needed to implement
  * Differential Synchronization for a specific type of documents.
  *
  * @param <T> The type of documents that this synchronizer can handle
@@ -98,7 +97,7 @@ public interface ClientSynchronizer<T, S extends Edit> {
     PatchMessage<S> patchMessageFromJson(String json);
 
     /**
-     * Adds the content of the passed in {@link ClientDocument} to the {@link JsonNode}.
+     * Adds the content of the passed in {@code content} to the {@link ObjectNode}.
      * <p>
      * When a client initially adds a document to the engine it will also be sent across the
      * wire to the server. Before sending, the content of the document has to be added to the

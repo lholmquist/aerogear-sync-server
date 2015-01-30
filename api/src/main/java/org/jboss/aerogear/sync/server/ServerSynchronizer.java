@@ -29,6 +29,7 @@ import java.util.Queue;
  * Differential Synchronization for a specific type of documents.
  *
  * @param <T> The type of documents that this engine can handle.
+ * @param <S> The type of {@link Edit}s that this synchronizer can handle
  */
 public interface ServerSynchronizer<T, S extends Edit> {
 
@@ -68,10 +69,31 @@ public interface ServerSynchronizer<T, S extends Edit> {
      */
     S clientDiff(Document<T> document, ShadowDocument<T> shadowDocument);
 
+    /**
+     * Creates a new {@link PatchMessage} with the with the type of {@link Edit} that this
+     * synchronizer can handle.
+     *
+     * @param documentId the document identifier for the {@code PatchMessage}
+     * @param clientId the client identifier for the {@code PatchMessage}
+     * @param edits the {@link Edit}s for the {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
     PatchMessage<S> createPatchMessage(String documentId, String clientId, Queue<S> edits);
 
+    /**
+     * Creates a {link PatchMessage} by parsing the passed-in json.
+     *
+     * @param json the json representation of a {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
     PatchMessage<S> patchMessageFromJson(String json);
 
+    /**
+     * Converts the {@link JsonNode} into a {@link Document} instance.
+     *
+     * @param json the {@link JsonNode} to convert
+     * @return {@link Document} the document representing the contents of the {@link JsonNode} instance.
+     */
     Document<T> documentFromJson(JsonNode json);
 
 }
