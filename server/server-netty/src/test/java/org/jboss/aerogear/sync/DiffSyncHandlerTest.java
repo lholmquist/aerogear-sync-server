@@ -20,15 +20,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
 import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
-import org.jboss.aerogear.sync.diffmatchpatch.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
-import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
+import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 import org.junit.Test;
@@ -125,7 +125,7 @@ public class DiffSyncHandlerTest {
 
     @Test
     public void addDocumentWithoutContent() {
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         final EmbeddedChannel channel1 = embeddedChannel(dataStore);
         final EmbeddedChannel channel2 = embeddedChannel(dataStore);
         final String docId = UUID.randomUUID().toString();
@@ -159,7 +159,7 @@ public class DiffSyncHandlerTest {
         final String client2Id = "client2";
         for (int i = 0 ; i < iterations; i++) {
             final String docId = UUID.randomUUID().toString();
-            final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+            final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
             final EmbeddedChannel channel1 = embeddedChannel(dataStore);
             final EmbeddedChannel channel2 = embeddedChannel(dataStore);
             executorService.submit(new AddDocumentTask(channel1, docId, "client1", content, await, latch));
@@ -191,7 +191,7 @@ public class DiffSyncHandlerTest {
         final String client2Id = "client2";
         for (int i = 0 ; i < iterations; i++) {
             final String docId = UUID.randomUUID().toString();
-            final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+            final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
             final EmbeddedChannel channel1 = embeddedChannel(dataStore);
             final EmbeddedChannel channel2 = embeddedChannel(dataStore);
             executorService.submit(new AddDocumentTask(channel1, docId, "client1", content, await, latch));
@@ -252,7 +252,7 @@ public class DiffSyncHandlerTest {
 
     @Test
     public void patch() {
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         final EmbeddedChannel channel1 = embeddedChannel(dataStore);
         final EmbeddedChannel channel2 = embeddedChannel(dataStore);
         final String docId = UUID.randomUUID().toString();
@@ -295,7 +295,7 @@ public class DiffSyncHandlerTest {
     @Test
     public void patchJedi() {
         final ClientSyncEngine<String, DiffMatchPatchEdit> clientSyncEngine = newClientSyncEngine();
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         final EmbeddedChannel channel1 = embeddedChannel(dataStore);
         final EmbeddedChannel channel2 = embeddedChannel(dataStore);
         final String docId = UUID.randomUUID().toString();
@@ -398,7 +398,7 @@ public class DiffSyncHandlerTest {
     @Test
     public void patchCompletReplacementOfContent() {
         final ClientSyncEngine<String, DiffMatchPatchEdit> clientSyncEngine = newClientSyncEngine();
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         final EmbeddedChannel channel1 = embeddedChannel(dataStore);
         final EmbeddedChannel channel2 = embeddedChannel(dataStore);
         final String docId = UUID.randomUUID().toString();
@@ -521,13 +521,13 @@ public class DiffSyncHandlerTest {
     }
 
     private static EmbeddedChannel embeddedChannel() {
-        return embeddedChannel(new DiffMatchPatchInMemoryDataStore());
+        return embeddedChannel(new ServerInMemoryDataStore<String, DiffMatchPatchEdit>());
     }
 
-    private static EmbeddedChannel embeddedChannel(final DiffMatchPatchInMemoryDataStore dataStore) {
+    private static EmbeddedChannel embeddedChannel(final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore) {
         final ServerSynchronizer<String, DiffMatchPatchEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(synchronizer, dataStore);
-        return new EmbeddedChannel(new DiffSyncHandler(syncEngine));
+        return new EmbeddedChannel(new DiffSyncHandler<String, DiffMatchPatchEdit>(syncEngine));
     }
 
     private static PatchMessage<DiffMatchPatchEdit> generateClientSideEdits(final String documentId,
@@ -541,7 +541,8 @@ public class DiffSyncHandlerTest {
     }
 
     private static ClientSyncEngine<String, DiffMatchPatchEdit> newClientSyncEngine() {
-        return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), new ClientInMemoryDataStore());
+        return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(),
+                new ClientInMemoryDataStore<String, DiffMatchPatchEdit>());
     }
 
 }

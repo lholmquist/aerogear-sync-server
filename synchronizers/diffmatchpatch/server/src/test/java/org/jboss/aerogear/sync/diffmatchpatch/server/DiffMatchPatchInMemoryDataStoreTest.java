@@ -1,6 +1,7 @@
 package org.jboss.aerogear.sync.diffmatchpatch.server;
 
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
+import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -15,7 +16,7 @@ public class DiffMatchPatchInMemoryDataStoreTest {
     public void getEdits() {
         final String documentId = "12345";
         final String clientId = "client1";
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         final DiffMatchPatchEdit editOne = DiffMatchPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(0).build();
         final DiffMatchPatchEdit editTwo = DiffMatchPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(1).build();
         dataStore.saveEdits(editOne);

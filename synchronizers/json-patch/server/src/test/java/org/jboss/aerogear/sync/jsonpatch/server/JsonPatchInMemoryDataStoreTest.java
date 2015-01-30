@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
+import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.junit.Test;
 
 import java.util.Iterator;
@@ -38,7 +39,7 @@ public class JsonPatchInMemoryDataStoreTest {
     public void getEdits() {
         final String documentId = "12345";
         final String clientId = "client1";
-        final JsonPatchInMemoryDataStore dataStore = new JsonPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ServerInMemoryDataStore<JsonNode, JsonPatchEdit>();
         final JsonPatchEdit editOne = JsonPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(0).build();
         final JsonPatchEdit editTwo = JsonPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(1).build();
         dataStore.saveEdits(editOne);
@@ -54,7 +55,7 @@ public class JsonPatchInMemoryDataStoreTest {
     public void saveDocument() {
         final String documentId = "1234";
         final JsonNode content = OM.createObjectNode().put("name", "fletch");
-        final JsonPatchInMemoryDataStore dataStore = new JsonPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ServerInMemoryDataStore<JsonNode, JsonPatchEdit>();
         dataStore.saveDocument(new DefaultDocument<JsonNode>(documentId, content));
         final Document<JsonNode> document = dataStore.getDocument(documentId);
         assertThat(document.content(), equalTo(content));

@@ -28,8 +28,8 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
+import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
@@ -48,7 +48,7 @@ public final class DiffMatchPatchSyncServer {
         final EventLoopGroup bossGroup = new NioEventLoopGroup();
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
         final ServerSynchronizer<String, DiffMatchPatchEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
-        final DiffMatchPatchInMemoryDataStore dataStore = new DiffMatchPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         final ServerSyncEngine<String, DiffMatchPatchEdit> syncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(synchronizer, dataStore);
         final DiffSyncHandler<String, DiffMatchPatchEdit> diffSyncHandler = new DiffSyncHandler<String, DiffMatchPatchEdit>(syncEngine);
         try {

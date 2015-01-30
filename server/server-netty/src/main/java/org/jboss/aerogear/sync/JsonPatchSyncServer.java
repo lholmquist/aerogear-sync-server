@@ -29,8 +29,8 @@ import io.netty.handler.codec.http.HttpRequestDecoder;
 import io.netty.handler.codec.http.HttpResponseEncoder;
 import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
-import org.jboss.aerogear.sync.jsonpatch.server.JsonPatchInMemoryDataStore;
 import org.jboss.aerogear.sync.jsonpatch.server.JsonPatchServerSynchronizer;
+import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.jboss.aerogear.sync.server.ServerSyncEngine;
 
 /**
@@ -47,7 +47,7 @@ public final class JsonPatchSyncServer {
         final EventLoopGroup workerGroup = new NioEventLoopGroup();
 
         final JsonPatchServerSynchronizer synchronizer = new JsonPatchServerSynchronizer();
-        final JsonPatchInMemoryDataStore dataStore = new JsonPatchInMemoryDataStore();
+        final ServerInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ServerInMemoryDataStore<JsonNode, JsonPatchEdit>();
         final ServerSyncEngine<JsonNode, JsonPatchEdit> syncEngine = new ServerSyncEngine<JsonNode, JsonPatchEdit>(synchronizer, dataStore);
         final DiffSyncHandler<JsonNode, JsonPatchEdit> diffSyncHandler = new DiffSyncHandler<JsonNode, JsonPatchEdit>(syncEngine);
         try {

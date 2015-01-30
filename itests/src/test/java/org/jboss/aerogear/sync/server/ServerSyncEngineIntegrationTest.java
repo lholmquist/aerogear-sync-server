@@ -19,6 +19,7 @@ package org.jboss.aerogear.sync.server;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DefaultDocument;
+import org.jboss.aerogear.sync.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
 import org.jboss.aerogear.sync.Document;
@@ -26,10 +27,8 @@ import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.client.ClientDataStore;
-import org.jboss.aerogear.sync.diffmatchpatch.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
-import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +49,7 @@ public class ServerSyncEngineIntegrationTest {
 
     @Before
     public void setup() {
-        dataStore = new DiffMatchPatchInMemoryDataStore();
+        dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         serverSyncEngine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(), dataStore);
     }
 
@@ -195,7 +194,7 @@ public class ServerSyncEngineIntegrationTest {
     }
 
     private static ClientSyncEngine<String, DiffMatchPatchEdit> clientSyncEngine() {
-        final ClientDataStore<String, DiffMatchPatchEdit> clientDataStore = new ClientInMemoryDataStore();
+        final ClientDataStore<String, DiffMatchPatchEdit> clientDataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
         return new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), clientDataStore);
     }
 

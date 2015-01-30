@@ -14,22 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.server;
+package org.jboss.aerogear.sync.diffmatchpatch.server;
 
-import org.jboss.aerogear.sync.*;
+import org.jboss.aerogear.sync.BackupShadowDocument;
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.DefaultClientDocument;
+import org.jboss.aerogear.sync.DefaultDocument;
+import org.jboss.aerogear.sync.DefaultShadowDocument;
+import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.PatchMessage;
+import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchInMemoryDataStore;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchMessage;
-import org.jboss.aerogear.sync.diffmatchpatch.server.DiffMatchPatchServerSynchronizer;
+import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
+import org.jboss.aerogear.sync.server.ServerSyncEngine;
+import org.jboss.aerogear.sync.server.Subscriber;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static java.util.Arrays.*;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,13 +46,13 @@ import static org.mockito.Mockito.when;
 
 public class ServerSyncEngineTest {
 
-    private DiffMatchPatchInMemoryDataStore dataStore;
+    private ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore;
     private ServerSyncEngine<String, DiffMatchPatchEdit> engine;
     private final Subscriber<String> subscriber = mock(Subscriber.class);
 
     @Before
     public void setup() {
-        dataStore = new DiffMatchPatchInMemoryDataStore();
+        dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
         engine = new ServerSyncEngine<String, DiffMatchPatchEdit>(new DiffMatchPatchServerSynchronizer(), dataStore);
         when(subscriber.clientId()).thenReturn("client1");
     }

@@ -14,14 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.diffmatchpatch.server;
+package org.jboss.aerogear.sync.client;
 
 import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
-import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
-import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchEdit;
-import org.jboss.aerogear.sync.server.ServerDataStore;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -30,58 +28,53 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-public class DiffMatchPatchInMemoryDataStore implements ServerDataStore<String, DiffMatchPatchEdit> {
+public class ClientInMemoryDataStore<T, S extends Edit> implements ClientDataStore<T, S> {
 
-    private static final Queue<DiffMatchPatchEdit> EMPTY_QUEUE = new LinkedList<DiffMatchPatchEdit>();
-    private final ConcurrentMap<String, Document<String>> documents = new ConcurrentHashMap<String, Document<String>>();
-    private final ConcurrentMap<Id, ShadowDocument<String>> shadows = new ConcurrentHashMap<Id, ShadowDocument<String>>();
-    private final ConcurrentMap<Id, BackupShadowDocument<String>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<String>>();
-    private final ConcurrentHashMap<Id, Queue<DiffMatchPatchEdit>> pendingEdits = new ConcurrentHashMap<Id, Queue<DiffMatchPatchEdit>>();
+    private final Queue<S> emptyQueue = new LinkedList<S>();
+    private final ConcurrentMap<Id, ClientDocument<T>> documents = new ConcurrentHashMap<Id, ClientDocument<T>>();
+    private final ConcurrentMap<Id, ShadowDocument<T>> shadows = new ConcurrentHashMap<Id, ShadowDocument<T>>();
+    private final ConcurrentMap<Id, BackupShadowDocument<T>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<T>>();
+    private final ConcurrentHashMap<Id, Queue<S>> pendingEdits = new ConcurrentHashMap<Id, Queue<S>>();
 
     @Override
-    public void saveShadowDocument(final ShadowDocument<String> shadowDocument) {
+    public void saveShadowDocument(final ShadowDocument<T> shadowDocument) {
         shadows.put(id(shadowDocument.document()), shadowDocument);
     }
 
     @Override
-    public ShadowDocument<String> getShadowDocument(final String documentId, final String clientId) {
+    public ShadowDocument<T> getShadowDocument(final String documentId, final String clientId) {
         return shadows.get(id(documentId, clientId));
     }
 
     @Override
-    public void saveBackupShadowDocument(final BackupShadowDocument<String> backupShadow) {
+    public void saveBackupShadowDocument(final BackupShadowDocument<T> backupShadow) {
         backups.put(id(backupShadow.shadow().document()), backupShadow);
     }
 
     @Override
-    public BackupShadowDocument<String> getBackupShadowDocument(final String documentId, final String clientId) {
+    public BackupShadowDocument<T> getBackupShadowDocument(final String documentId, final String clientId) {
         return backups.get(id(documentId, clientId));
     }
 
     @Override
-    public boolean saveDocument(final Document<String> document) {
-        return documents.putIfAbsent(document.id(), document) == null;
+    public void saveClientDocument(final ClientDocument<T> document) {
+        documents.put(id(document), document);
     }
 
     @Override
-    public void updateDocument(final Document<String> document) {
-        documents.put(document.id(), document);
+    public ClientDocument<T> getClientDocument(final String documentId, final String clientId) {
+        return documents.get(id(documentId, clientId));
     }
 
     @Override
-    public Document<String> getDocument(final String documentId) {
-        return documents.get(documentId);
-    }
-
-    @Override
-    public void saveEdits(final DiffMatchPatchEdit edit) {
+    public void saveEdits(final S edit) {
         final Id id = id(edit.documentId(), edit.clientId());
-        final Queue<DiffMatchPatchEdit> newEdits = new ConcurrentLinkedQueue<DiffMatchPatchEdit>();
+        final Queue<S> newEdits = new ConcurrentLinkedQueue<S>();
         while (true) {
-            final Queue<DiffMatchPatchEdit> currentEdits = pendingEdits.get(id);
+            final Queue<S> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
                 newEdits.add(edit);
-                final Queue<DiffMatchPatchEdit> previous = pendingEdits.putIfAbsent(id, newEdits);
+                final Queue<S> previous = pendingEdits.putIfAbsent(id, newEdits);
                 if (previous != null) {
                     newEdits.addAll(previous);
                     if (pendingEdits.replace(id, previous, newEdits)) {
@@ -101,17 +94,17 @@ public class DiffMatchPatchInMemoryDataStore implements ServerDataStore<String, 
     }
 
     @Override
-    public void removeEdit(final DiffMatchPatchEdit edit) {
+    public void removeEdit(final S edit) {
         final Id id = id(edit.documentId(), edit.clientId());
         while (true) {
-            final Queue<DiffMatchPatchEdit> currentEdits = pendingEdits.get(id);
+            final Queue<S> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
                 break;
             }
-            final Queue<DiffMatchPatchEdit> newEdits = new ConcurrentLinkedQueue<DiffMatchPatchEdit>();
+            final Queue<S> newEdits = new ConcurrentLinkedQueue<S>();
             newEdits.addAll(currentEdits);
-            for (Iterator<DiffMatchPatchEdit> iter = newEdits.iterator(); iter.hasNext();) {
-                final DiffMatchPatchEdit oldEdit = iter.next();
+            for (Iterator<S> iter = newEdits.iterator(); iter.hasNext();) {
+                final Edit oldEdit = iter.next();
                 if (oldEdit.clientVersion() <= edit.clientVersion()) {
                     iter.remove();
                 }
@@ -122,11 +115,12 @@ public class DiffMatchPatchInMemoryDataStore implements ServerDataStore<String, 
         }
     }
 
+
     @Override
-    public Queue<DiffMatchPatchEdit> getEdits(final String documentId, final String clientId) {
-        final Queue<DiffMatchPatchEdit> edits = pendingEdits.get(id(documentId, clientId));
+    public Queue<S> getEdits(final String documentId, final String clientId) {
+        final Queue<S> edits = pendingEdits.get(id(documentId, clientId));
         if (edits == null) {
-            return EMPTY_QUEUE;
+            return emptyQueue;
         }
         return edits;
     }
@@ -136,7 +130,7 @@ public class DiffMatchPatchInMemoryDataStore implements ServerDataStore<String, 
         pendingEdits.remove(id(documentId, clientId));
     }
 
-    private static Id id(final ClientDocument<String> document) {
+    private Id id(final ClientDocument<T> document) {
         return id(document.id(), document.clientId());
     }
 
@@ -149,7 +143,7 @@ public class DiffMatchPatchInMemoryDataStore implements ServerDataStore<String, 
         private final String clientId;
         private final String documentId;
 
-        Id(final String documentId, final String clientId) {
+        private Id(final String documentId, final String clientId) {
             this.clientId = clientId;
             this.documentId = documentId;
         }

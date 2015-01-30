@@ -14,15 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch.server;
+package org.jboss.aerogear.sync.server;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.Document;
+import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
-import org.jboss.aerogear.sync.server.ServerDataStore;
 
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -31,58 +29,58 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-public class JsonPatchInMemoryDataStore implements ServerDataStore<JsonNode, JsonPatchEdit> {
+public class ServerInMemoryDataStore<T, S extends Edit> implements ServerDataStore<T, S> {
 
-    private static final Queue<JsonPatchEdit> EMPTY_QUEUE = new LinkedList<JsonPatchEdit>();
-    private final ConcurrentMap<String, Document<JsonNode>> documents = new ConcurrentHashMap<String, Document<JsonNode>>();
-    private final ConcurrentMap<Id, ShadowDocument<JsonNode>> shadows = new ConcurrentHashMap<Id, ShadowDocument<JsonNode>>();
-    private final ConcurrentMap<Id, BackupShadowDocument<JsonNode>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<JsonNode>>();
-    private final ConcurrentHashMap<Id, Queue<JsonPatchEdit>> pendingEdits = new ConcurrentHashMap<Id, Queue<JsonPatchEdit>>();
+    private final Queue<S> emptyQueue = new LinkedList<S>();
+    private final ConcurrentMap<String, Document<T>> documents = new ConcurrentHashMap<String, Document<T>>();
+    private final ConcurrentMap<Id, ShadowDocument<T>> shadows = new ConcurrentHashMap<Id, ShadowDocument<T>>();
+    private final ConcurrentMap<Id, BackupShadowDocument<T>> backups = new ConcurrentHashMap<Id, BackupShadowDocument<T>>();
+    private final ConcurrentHashMap<Id, Queue<S>> pendingEdits = new ConcurrentHashMap<Id, Queue<S>>();
 
     @Override
-    public void saveShadowDocument(final ShadowDocument<JsonNode> shadowDocument) {
+    public void saveShadowDocument(final ShadowDocument<T> shadowDocument) {
         shadows.put(id(shadowDocument.document()), shadowDocument);
     }
 
     @Override
-    public ShadowDocument<JsonNode> getShadowDocument(final String documentId, final String clientId) {
+    public ShadowDocument<T> getShadowDocument(final String documentId, final String clientId) {
         return shadows.get(id(documentId, clientId));
     }
 
     @Override
-    public void saveBackupShadowDocument(final BackupShadowDocument<JsonNode> backupShadow) {
+    public void saveBackupShadowDocument(final BackupShadowDocument<T> backupShadow) {
         backups.put(id(backupShadow.shadow().document()), backupShadow);
     }
 
     @Override
-    public BackupShadowDocument<JsonNode> getBackupShadowDocument(final String documentId, final String clientId) {
+    public BackupShadowDocument<T> getBackupShadowDocument(final String documentId, final String clientId) {
         return backups.get(id(documentId, clientId));
     }
 
     @Override
-    public boolean saveDocument(final Document<JsonNode> document) {
+    public boolean saveDocument(final Document<T> document) {
         return documents.putIfAbsent(document.id(), document) == null;
     }
 
     @Override
-    public void updateDocument(final Document<JsonNode> document) {
+    public void updateDocument(final Document<T> document) {
         documents.put(document.id(), document);
     }
 
     @Override
-    public Document<JsonNode> getDocument(final String documentId) {
+    public Document<T> getDocument(final String documentId) {
         return documents.get(documentId);
     }
 
     @Override
-    public void saveEdits(final JsonPatchEdit edit) {
+    public void saveEdits(final S edit) {
         final Id id = id(edit.documentId(), edit.clientId());
-        final Queue<JsonPatchEdit> newEdits = new ConcurrentLinkedQueue<JsonPatchEdit>();
+        final Queue<S> newEdits = new ConcurrentLinkedQueue<S>();
         while (true) {
-            final Queue<JsonPatchEdit> currentEdits = pendingEdits.get(id);
+            final Queue<S> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
                 newEdits.add(edit);
-                final Queue<JsonPatchEdit> previous = pendingEdits.putIfAbsent(id, newEdits);
+                final Queue<S> previous = pendingEdits.putIfAbsent(id, newEdits);
                 if (previous != null) {
                     newEdits.addAll(previous);
                     if (pendingEdits.replace(id, previous, newEdits)) {
@@ -102,17 +100,17 @@ public class JsonPatchInMemoryDataStore implements ServerDataStore<JsonNode, Jso
     }
 
     @Override
-    public void removeEdit(final JsonPatchEdit edit) {
+    public void removeEdit(final S edit) {
         final Id id = id(edit.documentId(), edit.clientId());
         while (true) {
-            final Queue<JsonPatchEdit> currentEdits = pendingEdits.get(id);
+            final Queue<S> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {
                 break;
             }
-            final Queue<JsonPatchEdit> newEdits = new ConcurrentLinkedQueue<JsonPatchEdit>();
+            final Queue<S> newEdits = new ConcurrentLinkedQueue<S>();
             newEdits.addAll(currentEdits);
-            for (Iterator<JsonPatchEdit> iter = newEdits.iterator(); iter.hasNext();) {
-                final JsonPatchEdit oldEdit = iter.next();
+            for (Iterator<S> iter = newEdits.iterator(); iter.hasNext();) {
+                final S oldEdit = iter.next();
                 if (oldEdit.clientVersion() <= edit.clientVersion()) {
                     iter.remove();
                 }
@@ -124,10 +122,10 @@ public class JsonPatchInMemoryDataStore implements ServerDataStore<JsonNode, Jso
     }
 
     @Override
-    public Queue<JsonPatchEdit> getEdits(final String documentId, final String clientId) {
-        final Queue<JsonPatchEdit> edits = pendingEdits.get(id(documentId, clientId));
+    public Queue<S> getEdits(final String documentId, final String clientId) {
+        final Queue<S> edits = pendingEdits.get(id(documentId, clientId));
         if (edits == null) {
-            return EMPTY_QUEUE;
+            return emptyQueue;
         }
         return edits;
     }
@@ -137,7 +135,7 @@ public class JsonPatchInMemoryDataStore implements ServerDataStore<JsonNode, Jso
         pendingEdits.remove(id(documentId, clientId));
     }
 
-    private static Id id(final ClientDocument<JsonNode> document) {
+    private Id id(final ClientDocument<T> document) {
         return id(document.id(), document.clientId());
     }
 
