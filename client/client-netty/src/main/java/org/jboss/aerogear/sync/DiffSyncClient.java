@@ -16,7 +16,6 @@
  */
 package org.jboss.aerogear.sync;
 
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
@@ -35,7 +34,6 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import org.jboss.aerogear.sync.diffmatchpatch.client.ClientInMemoryDataStore;
 import org.jboss.aerogear.sync.client.ClientSyncEngine;
 import org.jboss.aerogear.sync.diffmatchpatch.client.DefaultClientSynchronizer;
-import org.jboss.aerogear.sync.diffmatchpatch.JsonMapper;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -69,7 +67,7 @@ public final class DiffSyncClient<T, S extends Edit> extends Observable {
     }
     
     public DiffSyncClient<T, S> connect() throws InterruptedException {
-        final DiffSyncClientHandler diffSyncClientHandler = new DiffSyncClientHandler(syncEngine);
+        final DiffSyncClientHandler<T, S> diffSyncClientHandler = new DiffSyncClientHandler<T, S>(syncEngine);
         final WebSocketClientHandler handler = newWebSocketClientHandler();
         final Bootstrap b = new Bootstrap();
         group = new NioEventLoopGroup();
@@ -105,11 +103,8 @@ public final class DiffSyncClient<T, S extends Edit> extends Observable {
     public void addDocument(final ClientDocument<T> document) {
         syncEngine.addDocument(document);
         if (channel.isOpen()) {
-            final ObjectNode docMsg = message("add");
-            docMsg.put("id", document.id());
-            docMsg.put("clientId", document.clientId());
-            docMsg.put("content", document.content().toString());
-            channel.writeAndFlush(new TextWebSocketFrame(docMsg.toString()));
+            final String json = syncEngine.documentToJson(document);
+            channel.writeAndFlush(new TextWebSocketFrame(json));
         } else {
             //TODO: store the messages in a queue. 
         }
@@ -118,16 +113,10 @@ public final class DiffSyncClient<T, S extends Edit> extends Observable {
     public void diffAndSend(final ClientDocument<T> document) {
         final PatchMessage<S> patchMessage = syncEngine.diff(document);
         if (channel.isOpen()) {
-            channel.writeAndFlush(new TextWebSocketFrame(JsonMapper.toJson(patchMessage)));
+            channel.writeAndFlush(new TextWebSocketFrame(patchMessage.asJson()));
         } else {
             //TODO: store edits in a queue. 
         }
-    }
-    
-    private static ObjectNode message(final String type) {
-        final ObjectNode jsonNode = JsonMapper.newObjectNode();
-        jsonNode.put("msgType", type);
-        return jsonNode;
     }
     
     public void disconnect() {

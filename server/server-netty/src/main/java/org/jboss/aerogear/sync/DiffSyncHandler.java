@@ -61,7 +61,7 @@ public class DiffSyncHandler<T, S extends Edit> extends SimpleChannelInboundHand
                 final String clientId = json.get("clientId").asText();
                 final PatchMessage<S> patchMessage = addSubscriber(doc, clientId, ctx);
                 ctx.attr(DOC_ADD).set(true);
-                ctx.channel().writeAndFlush(textFrame(syncEngine.patchMessageToJson(patchMessage)));
+                ctx.channel().writeAndFlush(textFrame(patchMessage.asJson()));
                 break;
             case PATCH:
                 final PatchMessage<S> clientPatchMessage = syncEngine.patchMessageFromJson(json.toString());

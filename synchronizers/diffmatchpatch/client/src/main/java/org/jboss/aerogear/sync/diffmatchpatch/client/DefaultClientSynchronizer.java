@@ -16,6 +16,7 @@
  */
 package org.jboss.aerogear.sync.diffmatchpatch.client;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.sync.*;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
 import org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatch;
@@ -44,7 +45,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     }
 
     @Override
-    public DiffMatchPatchEdit clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public DiffMatchPatchEdit clientDiff(final ShadowDocument<String> shadowDocument, final ClientDocument<String> document) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
         return DiffMatchPatchEdit.withDocumentId(document.id())
@@ -57,7 +58,7 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     }
     
     @Override
-    public DiffMatchPatchEdit serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
+    public DiffMatchPatchEdit serverDiff(final ClientDocument<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
         return DiffMatchPatchEdit.withDocumentId(document.id())
@@ -98,8 +99,8 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     }
 
     @Override
-    public DiffMatchPatchEdit editFromJson(String json) {
-        return JsonMapper.fromJson(json, DiffMatchPatchEdit.class);
+    public void addContent(String content, ObjectNode objectNode, String fieldName) {
+        objectNode.put(fieldName, content);
     }
 
     private LinkedList<Patch> patchesFrom(final DiffMatchPatchEdit edit) {

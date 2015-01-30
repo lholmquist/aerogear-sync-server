@@ -51,4 +51,14 @@ public class JsonPatchMessage implements PatchMessage<JsonPatchEdit> {
     public String toString() {
         return "JsonPatchMessage[documentId=" + documentId + ", clientId=" + clientId + ", edits=" + edits + ']';
     }
+
+    @Override
+    public String asJson() {
+        return JsonMapper.toJson(this);
+    }
+
+    @Override
+    public JsonPatchMessage fromJson(final String json) {
+        return JsonMapper.fromJson(json, JsonPatchMessage.class);
+    }
 }

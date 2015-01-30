@@ -35,6 +35,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -118,6 +119,19 @@ public class JsonPatchServerSynchronizerTest {
         final JsonPatchEdit edit = jsonPatchEdit(documentId, clientId, patch);
         final ShadowDocument<JsonNode> patched = syncer.patchShadow(edit, shadowDocument);
         assertThat(patched.document().content().get("name").asText(), equalTo("Fletch"));
+    }
+
+    @Test
+    public void documentFromJson() {
+        final String documentId = "1234";
+        final ObjectNode msg = objectMapper.createObjectNode().put("id", documentId);
+        msg.put("content", objectMapper.createObjectNode().put("name", "fletch"));
+        final Document<JsonNode> document = syncer.documentFromJson(msg);
+        assertThat(document.content(), instanceOf(JsonNode.class));
+
+        final ObjectNode msg2 = objectMapper.createObjectNode().put("id", documentId);
+        msg2.replace("content", objectMapper.createObjectNode().put("name", "fletch"));
+        System.out.println(msg2);
     }
 
     private static JsonPatchEdit jsonPatchEdit(final String documentId, final String clientId, final JsonPatch patch) {

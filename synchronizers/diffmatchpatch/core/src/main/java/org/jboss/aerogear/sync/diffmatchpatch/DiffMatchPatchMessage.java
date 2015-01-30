@@ -35,4 +35,14 @@ public class DiffMatchPatchMessage implements PatchMessage<DiffMatchPatchEdit> {
     public String toString() {
         return "DefaultEdits[documentId=" + documentId + ", clientId=" + clientId + ", edits=" + edits + ']';
     }
+
+    @Override
+    public String asJson() {
+        return JsonMapper.toJson(this);
+    }
+
+    @Override
+    public DiffMatchPatchMessage fromJson(String json) {
+        return JsonMapper.fromJson(json, DiffMatchPatchMessage.class);
+    }
 }

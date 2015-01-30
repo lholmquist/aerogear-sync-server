@@ -38,7 +38,7 @@ import java.util.concurrent.Executors;
 /**
  * A Netty based WebSocket server that is able to handle differential synchronization edits.
  */
-public final class DiffSyncServer {
+public final class DiffMatchPatchSyncServer {
 
     private static final String DEFAULT_CONFIG = "/sync.config";
 
@@ -72,7 +72,7 @@ public final class DiffSyncServer {
             }
 
             final Channel ch = sb.bind(config.host(), config.port()).sync().channel();
-            System.out.println("SyncServer bound to " + config.host() + ':' + config.port());
+            System.out.println("DiffMatchPatchSyncServer bound to " + config.host() + ':' + config.port());
 
             ch.closeFuture().sync();
         } finally {

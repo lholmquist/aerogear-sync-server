@@ -4,7 +4,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.jboss.aerogear.sync.server.Subscriber;
 
-import static org.jboss.aerogear.sync.diffmatchpatch.JsonMapper.toJson;
 
 public class NettySubscriber implements Subscriber<ChannelHandlerContext> {
 
@@ -27,8 +26,8 @@ public class NettySubscriber implements Subscriber<ChannelHandlerContext> {
     }
 
     @Override
-    public void patched(final PatchMessage patchMessage) {
-        ctx.channel().writeAndFlush(textFrame(toJson(patchMessage)));
+    public void patched(final PatchMessage<?> patchMessage) {
+        ctx.channel().writeAndFlush(textFrame(patchMessage.asJson()));
     }
 
     @Override

@@ -16,6 +16,8 @@
  */
 package org.jboss.aerogear.sync.client;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultBackupShadowDocument;
@@ -36,6 +38,7 @@ import java.util.Queue;
  */
 public class ClientSyncEngine<T, S extends Edit> extends Observable {
 
+    private static final  ObjectMapper OM = new ObjectMapper();
     private final ClientSynchronizer<T, S> clientSynchronizer;
     private final ClientDataStore<T, S> dataStore;
 
@@ -92,12 +95,23 @@ public class ClientSyncEngine<T, S extends Edit> extends Observable {
         saveBackupShadow(patchedShadow);
     }
 
+    /**
+     * Creates a {link PatchMessage} by parsing the passed-in json.
+     *
+     * @param json the json representation of a {@code PatchMessage}
+     * @return {@link PatchMessage} the created {code PatchMessage}
+     */
     public PatchMessage<S> patchMessageFromJson(final String json) {
         return clientSynchronizer.patchMessageFromJson(json);
     }
 
-    public S editFromJson(final String json) {
-        return clientSynchronizer.editFromJson(json);
+    public String documentToJson(final ClientDocument<T> document) {
+        final ObjectNode objectNode = OM.createObjectNode();
+        objectNode.put("msgType", "add");
+        objectNode.put("id", document.id());
+        objectNode.put("clientId", document.clientId());
+        clientSynchronizer.addContent(document.content(), objectNode, "content");
+        return objectNode.toString();
     }
 
     public PatchMessage<S> createPatchMessage(final String documentId, final String clientId, final Queue<S> edits) {
@@ -182,14 +196,22 @@ public class ClientSyncEngine<T, S extends Edit> extends Observable {
     }
 
     private Document<T> patchDocument(final ShadowDocument<T> shadowDocument) {
-        final ClientDocument<T> document = dataStore.getClientDocument(shadowDocument.document().id(), shadowDocument.document().clientId());
-        final S edit = clientDiff(document, shadowDocument);
-        final ClientDocument<T> patched = clientSynchronizer.patchDocument(edit, document);
+        final ClientDocument<T> clientDocument = getClientDocumentForShadow(shadowDocument);
+        final S edit = clientDiff(clientDocument, shadowDocument);
+        final ClientDocument<T> patched = patchDocument(edit, clientDocument);
         saveDocument(patched);
         saveBackupShadow(shadowDocument);
         setChanged();
         notifyObservers(patched);
         return patched;
+    }
+
+    private ClientDocument<T> patchDocument(final S edit, final ClientDocument<T> clientDocument) {
+        return clientSynchronizer.patchDocument(edit, clientDocument);
+    }
+
+    private ClientDocument<T> getClientDocumentForShadow(final ShadowDocument<T> shadow) {
+        return dataStore.getClientDocument(shadow.document().id(), shadow.document().clientId());
     }
 
     private ShadowDocument<T> getShadowDocument(final String documentId, final String clientId) {
@@ -205,7 +227,7 @@ public class ClientSyncEngine<T, S extends Edit> extends Observable {
     }
 
     private S clientDiff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {
-        return clientSynchronizer.clientDiff(doc, shadow);
+        return clientSynchronizer.clientDiff(shadow, doc);
     }
     
     private S serverDiff(final ClientDocument<T> doc, final ShadowDocument<T> shadow) {

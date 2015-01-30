@@ -67,10 +67,6 @@ public class ServerSyncEngine<T, S extends Edit> {
         return synchronizer.patchMessageFromJson(json);
     }
 
-    public String patchMessageToJson(final PatchMessage<S> patchMessage) {
-        return synchronizer.patchMessageToJson(patchMessage);
-    }
-
     public Document<T> documentFromJson(final JsonNode json) {
         return synchronizer.documentFromJson(json);
     }

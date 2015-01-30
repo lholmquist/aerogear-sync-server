@@ -2,12 +2,20 @@
 This module contains a server implementations that uses the [server-core](../server-core)
 
 ### DiffSyncServer
-The [DiffSyncServer](./src/main/java/org/jboss/aerogear/sync/DiffSyncServer.java) is a standalone server implementation
-that can be started using Maven or directly in an IDE.
+The [DiffMatchPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/DiffMatchPatchSyncServer.java) is a standalone server implementation
+that uses [DiffMatchPatch](../synchronizers/diffmatchpath) for diffs/patches
 
 #### Starting using Maven
 
-    mvn exec:exec
+    mvn exec:exec -Pdiffmatch
+
+### JsonPatchDiffSyncServer
+The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonPatchSyncServer.java) is a standalone 
+server implementation that uses [JSON Patch](../synchronizers/json-patch)for diff/patches.
+
+#### Starting using Maven
+
+    mvn exec:exec -Pjsonpatch
 
 ### Configuration option
 The server can be configured using [sync.config](./src/main/resources/sync.config)

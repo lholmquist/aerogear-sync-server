@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
@@ -38,7 +39,7 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     private static final String UTF_8 = Charset.forName("UTF-8").displayName();
 
     @Override
-    public JsonPatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
+    public JsonPatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
         final JsonNode shadowObject = shadowDocument.document().content();
         return JsonPatchEdit.withDocumentId(document.id())
                 .clientId(shadowDocument.document().clientId())
@@ -48,7 +49,7 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     }
 
     @Override
-    public JsonPatchEdit serverDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
+    public JsonPatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
         return JsonPatchEdit.withDocumentId(document.id())
                 .clientId(shadowDocument.document().clientId())
@@ -85,8 +86,8 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     }
 
     @Override
-    public JsonPatchEdit editFromJson(String json) {
-        return JsonMapper.fromJson(json, JsonPatchEdit.class);
+    public void addContent(JsonNode content, final ObjectNode objectNode, final String fieldName) {
+        objectNode.put(fieldName, content);
     }
 
     private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {

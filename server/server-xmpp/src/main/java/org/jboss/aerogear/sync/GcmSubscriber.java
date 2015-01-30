@@ -36,7 +36,7 @@ public class GcmSubscriber implements Subscriber<XMPPConnection> {
     }
 
     @Override
-    public void patched(final PatchMessage patchMessage) {
+    public void patched(final PatchMessage<?> patchMessage) {
         try {
             send(createJsonMessage(googleRegistrationId, "m-" + UUID.randomUUID(), toJson(patchMessage)));
         } catch (Exception ex) {

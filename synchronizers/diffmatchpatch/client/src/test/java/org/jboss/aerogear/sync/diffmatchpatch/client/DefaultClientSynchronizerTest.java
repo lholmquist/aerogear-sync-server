@@ -46,7 +46,7 @@ public class DefaultClientSynchronizerTest {
         final String update = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, original);
 
-        final DiffMatchPatchEdit edit = clientSynchronizer.clientDiff(newDoc(documentId, update), clientShadow);
+        final DiffMatchPatchEdit edit = clientSynchronizer.clientDiff(clientShadow, newDoc(documentId, clientId, update));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientId(), is(clientId));
@@ -103,7 +103,7 @@ public class DefaultClientSynchronizerTest {
         return new DefaultShadowDocument<String>(0, 0, clientDoc);
     }
 
-    private static Document<String> newDoc(final String documentId, final String content) {
-        return new DefaultDocument<String>(documentId, content);
+    private static ClientDocument<String> newDoc(final String documentId, final String clientId, final String content) {
+        return new DefaultClientDocument<String>(documentId, clientId, content);
     }
 }

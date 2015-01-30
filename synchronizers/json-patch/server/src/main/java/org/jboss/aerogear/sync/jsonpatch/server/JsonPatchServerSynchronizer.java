@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync.jsonpatch.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.diff.JsonDiff;
 import org.jboss.aerogear.sync.DefaultClientDocument;
 import org.jboss.aerogear.sync.DefaultDocument;
@@ -29,6 +30,8 @@ import org.jboss.aerogear.sync.jsonpatch.JsonPatchDiff;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.math.BigInteger;
 import java.nio.charset.Charset;
@@ -41,6 +44,7 @@ import java.util.Queue;
 public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode, JsonPatchEdit> {
 
     private static final String UTF_8 = Charset.forName("UTF-8").displayName();
+    private static final Logger logger = LoggerFactory.getLogger(JsonPatchServerSynchronizer.class);
 
     @Override
     public JsonPatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
@@ -90,11 +94,6 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     }
 
     @Override
-    public String patchMessageToJson(PatchMessage<JsonPatchEdit> patchMessage) {
-        return JsonMapper.toJson(patchMessage);
-    }
-
-    @Override
     public Document<JsonNode> documentFromJson(JsonNode json) {
         return new DefaultDocument<JsonNode>(json.get("id").asText(), json.get("content"));
     }
@@ -105,7 +104,7 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
             for (JsonPatchDiff diff : edit.diffs()) {
                 patched = diff.jsonPatch().apply(patched);
             }
-        } catch (final Exception e) {
+        } catch (final JsonPatchException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
         return patched;
