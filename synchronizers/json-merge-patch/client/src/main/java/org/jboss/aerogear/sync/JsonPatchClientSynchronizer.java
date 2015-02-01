@@ -22,7 +22,6 @@ import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchDiff;
 import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchEdit;
 import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
@@ -93,15 +92,11 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     }
 
     private static JsonNode patch(final JsonMergePatchEdit edit, final JsonNode target) {
-        JsonNode patched = target.deepCopy();
         try {
-            for (JsonMergePatchDiff diff : edit.diffs()) {
-                patched = diff.jsonMergePatch().apply(patched);
-            }
+            return edit.diff().jsonMergePatch().apply(target);
         } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        return patched;
     }
 
     public static String checksum(final JsonNode content) {

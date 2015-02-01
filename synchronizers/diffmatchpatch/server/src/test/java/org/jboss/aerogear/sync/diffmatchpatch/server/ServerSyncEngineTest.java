@@ -62,8 +62,8 @@ public class ServerSyncEngineTest {
         final String documentId = "1234";
         final PatchMessage<DiffMatchPatchEdit> patchMessage = engine.addSubscriber(subscriber, doc(documentId, "Mr. Rosen"));
         assertThat(patchMessage.edits().isEmpty(), is(false));
-        assertThat(patchMessage.edits().peek().diffs().peek().operation(), is(Operation.UNCHANGED));
-        assertThat(patchMessage.edits().peek().diffs().peek().text(), is("Mr. Rosen"));
+        assertThat(patchMessage.edits().peek().diff().diffs().peek().operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().diff().diffs().peek().text(), is("Mr. Rosen"));
     }
 
     @Test
@@ -79,8 +79,8 @@ public class ServerSyncEngineTest {
         engine.addSubscriber(subscriber, doc(documentId, "Mr. Rosen"));
         final PatchMessage<DiffMatchPatchEdit> patchMessage = engine.addSubscriber(subscriber, doc(documentId, null));
         assertThat(patchMessage.edits().isEmpty(), is(false));
-        assertThat(patchMessage.edits().peek().diffs().peek().operation(), is(Operation.UNCHANGED));
-        assertThat(patchMessage.edits().peek().diffs().peek().text(), is("Mr. Rosen"));
+        assertThat(patchMessage.edits().peek().diff().diffs().peek().operation(), is(Operation.UNCHANGED));
+        assertThat(patchMessage.edits().peek().diff().diffs().peek().text(), is("Mr. Rosen"));
     }
 
     @Test
@@ -90,7 +90,7 @@ public class ServerSyncEngineTest {
         final PatchMessage<DiffMatchPatchEdit> patchMsg = engine.addSubscriber(subscriber, doc(documentId, "Some new content"));
         final Queue<DiffMatchPatchEdit> edits = patchMsg.edits();
         assertThat(edits.size(), is(1));
-        final LinkedList<DiffMatchPatchDiff> diffs = edits.peek().diffs();
+        final LinkedList<DiffMatchPatchDiff> diffs = edits.peek().diff().diffs();
         assertThat(diffs.get(0).operation(), is(Operation.DELETE));
         assertThat(diffs.get(0).text(), is("Some"));
         assertThat(diffs.get(1).operation(), is(Operation.ADD));
@@ -143,9 +143,9 @@ public class ServerSyncEngineTest {
         assertThat(edit.clientId(), equalTo(subscriber.clientId()));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
-        assertThat(edit.diffs().size(), is(1));
-        assertThat(edit.diffs().peek().operation(), is(Operation.UNCHANGED));
-        assertThat(edit.diffs().peek().text(), equalTo(originalVersion));
+        assertThat(edit.diff().diffs().size(), is(1));
+        assertThat(edit.diff().diffs().peek().operation(), is(Operation.UNCHANGED));
+        assertThat(edit.diff().diffs().peek().text(), equalTo(originalVersion));
     }
 
     @Test

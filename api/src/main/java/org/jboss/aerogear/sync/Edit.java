@@ -16,12 +16,10 @@
  */
 package org.jboss.aerogear.sync;
 
-import java.util.LinkedList;
-
 /**
  * Represents a single edit.
  */
-public interface Edit {
+public interface Edit<T extends Diff> {
 
     /**
      * Identifies the client that this edit belongs to.
@@ -62,10 +60,10 @@ public interface Edit {
     String checksum();
 
     /**
-     * The {@link Diff}s for this edit.
+     * The {@link Diff} for this edit.
      *
-     * @return {@code LinkedList<Diff>} the diff that represents the changes for this edit.
+     * @return {@code T} the diff that represents the changes for this edit
      */
-    LinkedList<? extends Diff> diffs();
+    T diff();
 
 }

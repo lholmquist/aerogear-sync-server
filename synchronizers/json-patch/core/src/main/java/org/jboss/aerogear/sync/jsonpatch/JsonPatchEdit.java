@@ -19,16 +19,14 @@ package org.jboss.aerogear.sync.jsonpatch;
 import com.github.fge.jsonpatch.JsonPatch;
 import org.jboss.aerogear.sync.Edit;
 
-import java.util.LinkedList;
-
-public class JsonPatchEdit implements Edit {
+public class JsonPatchEdit implements Edit<JsonPatchDiff> {
 
     private final String clientId;
     private final String documentId;
     private final long clientVersion;
     private final long serverVersion;
     private final String checksum;
-    private final LinkedList<JsonPatchDiff> diffs;
+    private final JsonPatchDiff diffs;
 
     private JsonPatchEdit(final Builder builder) {
         clientId = builder.clientId;
@@ -65,7 +63,7 @@ public class JsonPatchEdit implements Edit {
     }
 
     @Override
-    public LinkedList<JsonPatchDiff> diffs() {
+    public JsonPatchDiff diff() {
         return diffs;
     }
 
@@ -129,7 +127,7 @@ public class JsonPatchEdit implements Edit {
         private long serverVersion;
         private long clientVersion;
         private String checksum;
-        private final LinkedList<JsonPatchDiff> diffs = new LinkedList<JsonPatchDiff>();
+        private JsonPatchDiff diffs;
 
         public static Builder withDocumentId(final String documentId) {
             return new Builder(documentId);
@@ -155,7 +153,7 @@ public class JsonPatchEdit implements Edit {
         }
 
         public Builder diff(final JsonPatch patch) {
-            diffs.add(new JsonPatchDiff(patch));
+            diffs = new JsonPatchDiff(patch);
             return this;
         }
 

@@ -29,6 +29,7 @@ import java.util.LinkedList;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JsonMapperTest {
@@ -54,7 +55,7 @@ public class JsonMapperTest {
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
         final JsonNode diffs = edit.get("diffs");
         assertThat(diffs.isArray(), is(true));
-        final JsonNode patch = diffs.get(0).get(0);
+        final JsonNode patch = diffs.get(0);
         assertThat(patch.get("op").asText(), equalTo("replace"));
         assertThat(patch.get("path").asText(), equalTo("/name"));
         assertThat(patch.get("value").asText(), equalTo("Fletch"));
@@ -70,8 +71,8 @@ public class JsonMapperTest {
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
-        assertThat(patchMessage.edits().peek().diffs().size(), is(1));
-        assertThat(patchMessage.edits().peek().diffs().peek().jsonPatch().toString(), equalTo(patch.toString()));
+        assertThat(patchMessage.edits(), is(notNullValue()));
+        assertThat(patchMessage.edits().peek().diff().jsonPatch().toString(), equalTo(patch.toString()));
     }
 
     @Test
@@ -84,7 +85,7 @@ public class JsonMapperTest {
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
         final JsonNode diffs = edit.get("diffs");
         assertThat(diffs.isArray(), is(true));
-        final JsonNode patch = diffs.get(0).get(0);
+        final JsonNode patch = diffs.get(0);
         assertThat(patch.get("op").asText(), equalTo("replace"));
         assertThat(patch.get("path").asText(), equalTo("/name"));
         assertThat(patch.get("value").asText(), equalTo("Fletch"));
@@ -99,9 +100,8 @@ public class JsonMapperTest {
         final JsonPatchEdit edit = JsonMapper.fromJson(json, JsonPatchEdit.class);
         assertThat(edit.documentId(), equalTo(documentId));
         assertThat(edit.clientId(), equalTo(clientId));
-        assertThat(edit.diffs().size(), is(1));
-        assertThat(edit.diffs().size(), is(1));
-        assertThat(edit.diffs().peek().jsonPatch().toString(), equalTo(patch.toString()));
+        assertThat(edit.diff(), is(notNullValue()));
+        assertThat(edit.diff().jsonPatch().toString(), equalTo(patch.toString()));
     }
 
     private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId, final String clientId) {

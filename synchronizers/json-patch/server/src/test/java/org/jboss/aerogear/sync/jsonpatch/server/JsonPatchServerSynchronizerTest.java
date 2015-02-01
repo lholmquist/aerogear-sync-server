@@ -35,8 +35,8 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JsonPatchServerSynchronizerTest {
@@ -56,8 +56,8 @@ public class JsonPatchServerSynchronizerTest {
         final JsonPatchEdit jsonPatchEdit = syncer.clientDiff(document, shadowDocument);
         assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
         assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
-        assertThat(jsonPatchEdit.diffs().size(), is(1));
-        final JsonPatch patch = jsonPatchEdit.diffs().peek().jsonPatch();
+        assertThat(jsonPatchEdit.diff(), is(notNullValue()));
+        final JsonPatch patch = jsonPatchEdit.diff().jsonPatch();
         final JsonNode patched = patch.apply(source);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
@@ -74,8 +74,8 @@ public class JsonPatchServerSynchronizerTest {
         final JsonPatchEdit jsonPatchEdit = syncer.serverDiff(document, shadowDocument);
         assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
         assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
-        assertThat(jsonPatchEdit.diffs().size(), is(1));
-        final JsonPatch patch = jsonPatchEdit.diffs().peek().jsonPatch();
+        assertThat(jsonPatchEdit.diff(), is(notNullValue()));
+        final JsonPatch patch = jsonPatchEdit.diff().jsonPatch();
         final JsonNode patched = patch.apply(source);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
@@ -90,8 +90,8 @@ public class JsonPatchServerSynchronizerTest {
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
-        assertThat(patchMessage.edits().peek().diffs().size(), is(1));
-        assertThat(patchMessage.edits().peek().diffs().peek().jsonPatch().toString(), equalTo(patch.toString()));
+        assertThat(patchMessage.edits().peek().diff(), is(notNullValue()));
+        assertThat(patchMessage.edits().peek().diff().jsonPatch().toString(), equalTo(patch.toString()));
     }
 
     @Test
@@ -119,19 +119,6 @@ public class JsonPatchServerSynchronizerTest {
         final JsonPatchEdit edit = jsonPatchEdit(documentId, clientId, patch);
         final ShadowDocument<JsonNode> patched = syncer.patchShadow(edit, shadowDocument);
         assertThat(patched.document().content().get("name").asText(), equalTo("Fletch"));
-    }
-
-    @Test
-    public void documentFromJson() {
-        final String documentId = "1234";
-        final ObjectNode msg = objectMapper.createObjectNode().put("id", documentId);
-        msg.put("content", objectMapper.createObjectNode().put("name", "fletch"));
-        final Document<JsonNode> document = syncer.documentFromJson(msg);
-        assertThat(document.content(), instanceOf(JsonNode.class));
-
-        final ObjectNode msg2 = objectMapper.createObjectNode().put("id", documentId);
-        msg2.replace("content", objectMapper.createObjectNode().put("name", "fletch"));
-        System.out.println(msg2);
     }
 
     private static JsonPatchEdit jsonPatchEdit(final String documentId, final String clientId, final JsonPatch patch) {

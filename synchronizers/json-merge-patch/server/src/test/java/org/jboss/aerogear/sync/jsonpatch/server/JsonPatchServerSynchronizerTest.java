@@ -37,6 +37,7 @@ import java.util.Queue;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JsonPatchServerSynchronizerTest {
@@ -56,8 +57,8 @@ public class JsonPatchServerSynchronizerTest {
         final JsonMergePatchEdit jsonPatchEdit = syncer.clientDiff(document, shadowDocument);
         assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
         assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
-        assertThat(jsonPatchEdit.diffs().size(), is(1));
-        final JsonMergePatch patch = jsonPatchEdit.diffs().peek().jsonMergePatch();
+        assertThat(jsonPatchEdit.diff(), is(notNullValue()));
+        final JsonMergePatch patch = jsonPatchEdit.diff().jsonMergePatch();
         final JsonNode patched = patch.apply(source);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
@@ -74,8 +75,8 @@ public class JsonPatchServerSynchronizerTest {
         final JsonMergePatchEdit jsonPatchEdit = syncer.serverDiff(document, shadowDocument);
         assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
         assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
-        assertThat(jsonPatchEdit.diffs().size(), is(1));
-        final JsonMergePatch patch = jsonPatchEdit.diffs().peek().jsonMergePatch();
+        assertThat(jsonPatchEdit.diff(), is(notNullValue()));
+        final JsonMergePatch patch = jsonPatchEdit.diff().jsonMergePatch();
         final JsonNode patched = patch.apply(source);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
@@ -90,8 +91,8 @@ public class JsonPatchServerSynchronizerTest {
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
-        assertThat(patchMessage.edits().peek().diffs().size(), is(1));
-        final JsonMergePatchDiff jsonMergePatchDiff = patchMessage.edits().peek().diffs().get(0);
+        assertThat(patchMessage.edits().peek().diff(), is(notNullValue()));
+        final JsonMergePatchDiff jsonMergePatchDiff = patchMessage.edits().peek().diff();
         final JsonNode patched = jsonMergePatchDiff.jsonMergePatch().apply(source);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }

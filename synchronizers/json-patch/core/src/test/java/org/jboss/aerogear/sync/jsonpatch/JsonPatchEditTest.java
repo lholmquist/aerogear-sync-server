@@ -24,6 +24,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JsonPatchEditTest {
@@ -35,8 +36,8 @@ public class JsonPatchEditTest {
         final ObjectNode target = objectMapper.createObjectNode().put("name", "Fletch");
         final JsonPatch jsonPatch = JsonDiff.asJsonPatch(source, target);
         final JsonPatchEdit edit = JsonPatchEdit.withDocumentId("1234").clientId("client1").diff(jsonPatch).build();
-        assertThat(edit.diffs().isEmpty(), is(false));
-        assertThat(edit.diffs().get(0).jsonPatch(), equalTo(jsonPatch));
+        assertThat(edit.diff(), is(notNullValue()));
+        assertThat(edit.diff().jsonPatch(), equalTo(jsonPatch));
     }
 
 

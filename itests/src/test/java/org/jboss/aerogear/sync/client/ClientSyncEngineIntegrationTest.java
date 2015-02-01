@@ -97,8 +97,8 @@ public class ClientSyncEngineIntegrationTest {
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
 
-        final List<DiffMatchPatchDiff> diffs = edit.diffs();
-        assertThat(edit.diffs().size(), is(3));
+        final List<DiffMatchPatchDiff> diffs = edit.diff().diffs();
+        assertThat(diffs.size(), is(3));
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Operation.DELETE));
@@ -136,7 +136,7 @@ public class ClientSyncEngineIntegrationTest {
         final DiffMatchPatchEdit edit = patchMessage.edits().peek();
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
-        final List<DiffMatchPatchDiff> diffs = edit.diffs();
+        final List<DiffMatchPatchDiff> diffs = edit.diff().diffs();
         assertThat(diffs.size(), is(3));
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
@@ -154,8 +154,8 @@ public class ClientSyncEngineIntegrationTest {
         final DiffMatchPatchEdit serverEdit = serverPatchMessage.edits().peek();
         assertThat(serverEdit.clientVersion(), is(0L));
         assertThat(serverEdit.serverVersion(), is(0L));
-        assertThat(serverEdit.diffs().size(), is(3));
-        final List<DiffMatchPatchDiff> serverDiffs = edit.diffs();
+        assertThat(serverEdit.diff().diffs().size(), is(3));
+        final List<DiffMatchPatchDiff> serverDiffs = edit.diff().diffs();
         assertThat(serverDiffs.size(), is(3));
         assertThat(serverDiffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(serverDiffs.get(0).text(), equalTo("Do or do not, there is no try"));
@@ -171,13 +171,13 @@ public class ClientSyncEngineIntegrationTest {
         assertThat(clientTwoEdits.isEmpty(), is(true));
 
         final DiffMatchPatchEdit serverEdit1 = serverSyncEngine.diff(docId, subscriberOne.clientId());
-        assertThat(serverEdit1.diffs().size(), is(1));
-        assertThat(serverEdit1.diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(serverEdit1.diff().diffs().size(), is(1));
+        assertThat(serverEdit1.diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
 
         final DiffMatchPatchEdit serverEdit2 = serverSyncEngine.diff(docId, subscriberTwo.clientId());
-        assertThat(serverEdit2.diffs().size(), is(1));
-        assertThat(serverEdit2.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(serverEdit2.diffs().get(0).text(), equalTo("Do or do not, there is no try!"));
+        assertThat(serverEdit2.diff().diffs().size(), is(1));
+        assertThat(serverEdit2.diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(serverEdit2.diff().diffs().get(0).text(), equalTo("Do or do not, there is no try!"));
 
         final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(docId, subscriberTwo.clientId());
         assertThat(shadowDocument.clientVersion(), is(0L));

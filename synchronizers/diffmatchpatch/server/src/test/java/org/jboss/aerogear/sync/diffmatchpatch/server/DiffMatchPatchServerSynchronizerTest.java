@@ -42,11 +42,11 @@ public class DiffMatchPatchServerSynchronizerTest {
         assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
-        assertThat(edit.diffs().size(), is(2));
-        assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(edit.diffs().get(0).text(), is("test"));
-        assertThat(edit.diffs().get(1).operation(), is(Operation.ADD));
-        assertThat(edit.diffs().get(1).text(), is("ing"));
+        assertThat(edit.diff().diffs().size(), is(2));
+        assertThat(edit.diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edit.diff().diffs().get(0).text(), is("test"));
+        assertThat(edit.diff().diffs().get(1).operation(), is(Operation.ADD));
+        assertThat(edit.diff().diffs().get(1).text(), is("ing"));
     }
 
     @Test
@@ -59,11 +59,11 @@ public class DiffMatchPatchServerSynchronizerTest {
         assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
-        assertThat(edit.diffs().size(), is(2));
-        assertThat(edit.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(edit.diffs().get(0).text(), is("test"));
-        assertThat(edit.diffs().get(1).operation(), is(Operation.DELETE));
-        assertThat(edit.diffs().get(1).text(), is("ing"));
+        assertThat(edit.diff().diffs().size(), is(2));
+        assertThat(edit.diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(edit.diff().diffs().get(0).text(), is("test"));
+        assertThat(edit.diff().diffs().get(1).operation(), is(Operation.DELETE));
+        assertThat(edit.diff().diffs().get(1).text(), is("ing"));
     }
 
     @Test

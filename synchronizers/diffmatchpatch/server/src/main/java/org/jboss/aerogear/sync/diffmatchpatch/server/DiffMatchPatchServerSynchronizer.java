@@ -116,7 +116,7 @@ public class DiffMatchPatchServerSynchronizer implements ServerSynchronizer<Stri
     }
 
     private LinkedList<Patch> patchesFrom(final DiffMatchPatchEdit edit) {
-        return diffMatchPatch.patchMake(asDiffUtilDiffs(edit.diffs()));
+        return diffMatchPatch.patchMake(asDiffUtilDiffs(edit.diff().diffs()));
     }
 
     private static LinkedList<DiffMatchPatch.Diff> asDiffUtilDiffs(final LinkedList<DiffMatchPatchDiff> diffs) {

@@ -18,24 +18,18 @@ package org.jboss.aerogear.sync.diffmatchpatch;
 
 import org.jboss.aerogear.sync.Diff;
 
-public class DiffMatchPatchDiff implements Diff {
+import java.util.LinkedList;
 
-    public enum Operation { DELETE, ADD, UNCHANGED }
+public class DiffMatchPatchDiffs implements Diff {
 
-    private final Operation operation;
-    private final String text;
+    private final LinkedList<DiffMatchPatchDiff> diffs;
 
-    public DiffMatchPatchDiff(final Operation operation, final String text) {
-        this.operation = operation;
-        this.text = text;
+    public DiffMatchPatchDiffs(final LinkedList<DiffMatchPatchDiff> diffs) {
+        this.diffs = diffs;
     }
 
-    public Operation operation() {
-        return operation;
-    }
-
-    public String text() {
-        return text;
+    public LinkedList<DiffMatchPatchDiff> diffs() {
+        return diffs;
     }
 
     @Override
@@ -47,24 +41,22 @@ public class DiffMatchPatchDiff implements Diff {
             return false;
         }
 
-        DiffMatchPatchDiff that = (DiffMatchPatchDiff) o;
+        DiffMatchPatchDiffs that = (DiffMatchPatchDiffs) o;
 
-        if (operation != that.operation) {
+        if (diffs == that.diffs) {
             return false;
         }
 
-        return text != null ? !text.equals(that.text) : that.text != null;
+        return diffs != null ? !diffs.equals(that.diffs) : that.diffs != null;
     }
 
     @Override
     public int hashCode() {
-        int result = operation != null ? operation.hashCode() : 0;
-        result = 31 * result + (text != null ? text.hashCode() : 0);
-        return result;
+        return diffs != null ? diffs.hashCode() : 0;
     }
 
     @Override
     public String toString() {
-        return "DiffMatchPatchDiff[operation=" + operation + ", text=" + text + ']';
+        return "DiffMatchPatchDiffs[diffs=" + diffs +  ']';
     }
 }

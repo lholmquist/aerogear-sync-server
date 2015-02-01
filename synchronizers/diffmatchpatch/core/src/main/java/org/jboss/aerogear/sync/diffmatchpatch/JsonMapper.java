@@ -172,8 +172,8 @@ public final class JsonMapper {
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
                 jgen.writeArrayFieldStart("diffs");
-                if (!edit.diffs().isEmpty()) {
-                    for (DiffMatchPatchDiff diff : edit.diffs()) {
+                if (edit.diff() != null) {
+                    for (DiffMatchPatchDiff diff : edit.diff().diffs()) {
                         jgen.writeStartObject();
                         jgen.writeStringField("operation", diff.operation().toString());
                         jgen.writeStringField("text", diff.text());
@@ -223,8 +223,8 @@ public final class JsonMapper {
             jgen.writeNumberField("serverVersion", edit.serverVersion());
             jgen.writeStringField("checksum", edit.checksum());
             jgen.writeArrayFieldStart("diffs");
-            if (!edit.diffs().isEmpty()) {
-                for (DiffMatchPatchDiff diff : edit.diffs()) {
+            if (edit.diff() != null) {
+                for (DiffMatchPatchDiff diff : edit.diff().diffs()) {
                     jgen.writeStartObject();
                     jgen.writeStringField("operation", diff.operation().toString());
                     jgen.writeStringField("text", diff.text());

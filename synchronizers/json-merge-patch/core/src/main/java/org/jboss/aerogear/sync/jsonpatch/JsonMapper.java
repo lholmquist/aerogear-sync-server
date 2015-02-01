@@ -136,16 +136,11 @@ public final class JsonMapper {
                     eb.serverVersion(edit.get("serverVersion").asLong());
                     eb.checksum(edit.get("checksum").asText());
                     final JsonNode diffsNode = edit.get("diffs");
-                    if (diffsNode.isArray()) {
-                        for (JsonNode d : diffsNode) {
-                            if (d.isNull()) {
-                                continue;
-                            }
-                            try {
-                                eb.diff(JsonMergePatch.fromJson(d));
-                            } catch (final JsonPatchException e) {
-                                throw new RuntimeException(e.getMessage(), e);
-                            }
+                    if (!diffsNode.isNull()) {
+                        try {
+                            eb.diff(JsonMergePatch.fromJson(diffsNode));
+                        } catch (final JsonPatchException e) {
+                            throw new RuntimeException(e.getMessage(), e);
                         }
                     }
                     edits.add(eb.build());
@@ -176,12 +171,8 @@ public final class JsonMapper {
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
-                jgen.writeArrayFieldStart("diffs");
-                if (!edit.diffs().isEmpty()) {
-                    for (JsonMergePatchDiff diff : edit.diffs()) {
-                        diff.jsonMergePatch().serialize(jgen, provider);
-                    }
-                    jgen.writeEndArray();
+                if (edit.diff() != null) {
+                    jgen.writeObjectField("diffs", edit.diff().jsonMergePatch());
                 }
                 jgen.writeEndObject();
             }
@@ -202,13 +193,11 @@ public final class JsonMapper {
             eb.serverVersion(edit.get("serverVersion").asLong());
             eb.checksum(edit.get("checksum").asText());
             final JsonNode diffsNode = edit.get("diffs");
-            if (diffsNode.isArray()) {
-                for (JsonNode d : diffsNode) {
-                    try {
-                        eb.diff(JsonMergePatch.fromJson(d));
-                    } catch (final JsonPatchException e) {
-                        throw new RuntimeException(e.getMessage(), e);
-                    }
+            if (!diffsNode.isNull()) {
+                try {
+                    eb.diff(JsonMergePatch.fromJson(diffsNode));
+                } catch (final JsonPatchException e) {
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             }
             return eb.build();
@@ -228,13 +217,10 @@ public final class JsonMapper {
             jgen.writeNumberField("clientVersion", edit.clientVersion());
             jgen.writeNumberField("serverVersion", edit.serverVersion());
             jgen.writeStringField("checksum", edit.checksum());
-            jgen.writeArrayFieldStart("diffs");
-            if (!edit.diffs().isEmpty()) {
-                for (JsonMergePatchDiff diff : edit.diffs()) {
-                    diff.jsonMergePatch().serialize(jgen, provider);
-                }
+            if (edit.diff() != null) {
+                jgen.writeObjectField("diffs", edit.diff().jsonMergePatch());
             }
-            jgen.writeEndArray();
+            jgen.writeEndObject();
         }
     }
 }

@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchDiff;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
@@ -91,15 +90,11 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     }
 
     private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
-        JsonNode patched = target.deepCopy();
         try {
-            for (JsonPatchDiff diff : edit.diffs()) {
-                patched = diff.jsonPatch().apply(patched);
-            }
+            return edit.diff().jsonPatch().apply(target);
         } catch (final Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        return patched;
     }
 
     public static String checksum(final JsonNode content) {

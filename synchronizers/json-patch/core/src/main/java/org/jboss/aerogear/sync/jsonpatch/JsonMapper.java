@@ -135,13 +135,8 @@ public final class JsonMapper {
                     eb.serverVersion(edit.get("serverVersion").asLong());
                     eb.checksum(edit.get("checksum").asText());
                     final JsonNode diffsNode = edit.get("diffs");
-                    if (diffsNode.isArray()) {
-                        for (JsonNode d : diffsNode) {
-                            if (d.isNull()) {
-                                continue;
-                            }
-                            eb.diff(JsonPatch.fromJson(d));
-                        }
+                    if (!diffsNode.isNull()) {
+                        eb.diff(JsonPatch.fromJson(diffsNode));
                     }
                     edits.add(eb.build());
                 }
@@ -171,12 +166,8 @@ public final class JsonMapper {
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
-                jgen.writeArrayFieldStart("diffs");
-                if (!edit.diffs().isEmpty()) {
-                    for (JsonPatchDiff diff : edit.diffs()) {
-                        diff.jsonPatch().serialize(jgen, provider);
-                    }
-                    jgen.writeEndArray();
+                if (edit.diff() != null) {
+                    jgen.writeObjectField("diffs", edit.diff().jsonPatch());
                 }
                 jgen.writeEndObject();
             }
@@ -197,10 +188,8 @@ public final class JsonMapper {
             eb.serverVersion(edit.get("serverVersion").asLong());
             eb.checksum(edit.get("checksum").asText());
             final JsonNode diffsNode = edit.get("diffs");
-            if (diffsNode.isArray()) {
-                for (JsonNode d : diffsNode) {
-                    eb.diff(JsonPatch.fromJson(d));
-                }
+            if (!diffsNode.isNull()) {
+                eb.diff(JsonPatch.fromJson(diffsNode));
             }
             return eb.build();
         }
@@ -219,13 +208,10 @@ public final class JsonMapper {
             jgen.writeNumberField("clientVersion", edit.clientVersion());
             jgen.writeNumberField("serverVersion", edit.serverVersion());
             jgen.writeStringField("checksum", edit.checksum());
-            jgen.writeArrayFieldStart("diffs");
-            if (!edit.diffs().isEmpty()) {
-                for (JsonPatchDiff diff : edit.diffs()) {
-                    diff.jsonPatch().serialize(jgen, provider);
-                }
+            if (edit.diff() != null) {
+                jgen.writeObjectField("diffs", edit.diff().jsonPatch());
             }
-            jgen.writeEndArray();
+            //jgen.writeEndArray();
         }
     }
 }

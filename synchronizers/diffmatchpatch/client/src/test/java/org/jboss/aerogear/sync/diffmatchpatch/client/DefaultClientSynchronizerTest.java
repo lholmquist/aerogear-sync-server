@@ -50,8 +50,8 @@ public class DefaultClientSynchronizerTest {
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientId(), is(clientId));
-        assertThat(edit.diffs().size(), is(3));
-        final List<DiffMatchPatchDiff> diffs = edit.diffs();
+        assertThat(edit.diff().diffs().size(), is(3));
+        final List<DiffMatchPatchDiff> diffs = edit.diff().diffs();
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), equalTo("Do or do not, there is no try"));
         assertThat(diffs.get(1).operation(), is(Operation.DELETE));

@@ -29,6 +29,7 @@ import java.util.LinkedList;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JsonMapperTest {
@@ -53,9 +54,7 @@ public class JsonMapperTest {
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
         final JsonNode diffs = edit.get("diffs");
-        assertThat(diffs.isArray(), is(true));
-        final JsonNode patch = diffs.get(0);
-        assertThat(patch.get("name").asText(), equalTo("Fletch"));
+        assertThat(diffs.get("name").asText(), equalTo("Fletch"));
     }
 
     @Test
@@ -68,47 +67,45 @@ public class JsonMapperTest {
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
-        assertThat(patchMessage.edits().peek().diffs().size(), is(1));
-        final JsonMergePatch patch = patchMessage.edits().peek().diffs().peek().jsonMergePatch();
+        assertThat(patchMessage.edits().peek().diff(), is(notNullValue()));
+        final JsonMergePatch patch = patchMessage.edits().peek().diff().jsonMergePatch();
         final JsonNode patched = patch.apply(original);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
 
     @Test
-    public void jsonPatchEditToJson() {
+    public void jsonMergePatchEditToJson() {
         final String documentId = "1234";
         final String clientId = "client1";
-        final String json = JsonMapper.toJson(jsonPatchEdit(documentId, clientId, jsonMergePatch()));
+        final String json = JsonMapper.toJson(jsonMergePatchEdit(documentId, clientId, jsonMergePatch()));
         final JsonNode edit = JsonMapper.asJsonNode(json);
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
         final JsonNode diffs = edit.get("diffs");
-        assertThat(diffs.isArray(), is(true));
-        final JsonNode patch = diffs.get(0);
-        assertThat(patch.get("name").asText(), equalTo("Fletch"));
+        assertThat(diffs.get("name").asText(), equalTo("Fletch"));
     }
 
     @Test
-    public void jsonPatchEditFromJson() throws JsonPatchException {
+    public void jsonMergePatchEditFromJson() throws JsonPatchException {
         final String documentId = "1234";
         final String clientId = "client1";
         final ObjectNode original = objectMapper.createObjectNode().put("name", "fletch");
-        final String json = JsonMapper.toJson(jsonPatchEdit(documentId, clientId, jsonMergePatch()));
+        final String json = JsonMapper.toJson(jsonMergePatchEdit(documentId, clientId, jsonMergePatch()));
         final JsonMergePatchEdit edit = JsonMapper.fromJson(json, JsonMergePatchEdit.class);
         assertThat(edit.documentId(), equalTo(documentId));
         assertThat(edit.clientId(), equalTo(clientId));
-        assertThat(edit.diffs().size(), is(1));
-        final JsonMergePatch patch = edit.diffs().get(0).jsonMergePatch();
+        assertThat(edit.diff(), is(notNullValue()));
+        final JsonMergePatch patch = edit.diff().jsonMergePatch();
         final JsonNode patched = patch.apply(original);
         assertThat(patched.get("name").asText(), equalTo("Fletch"));
     }
 
     private static PatchMessage<JsonMergePatchEdit> patchMessage(final String documentId, final String clientId) {
         final JsonMergePatch jsonPatch = jsonMergePatch();
-        return patchMessage(documentId, clientId, jsonPatchEdit(documentId, clientId, jsonPatch));
+        return patchMessage(documentId, clientId, jsonMergePatchEdit(documentId, clientId, jsonPatch));
     }
 
-    private static JsonMergePatchEdit jsonPatchEdit(final String documentId, final String clientId, final JsonMergePatch patch) {
+    private static JsonMergePatchEdit jsonMergePatchEdit(final String documentId, final String clientId, final JsonMergePatch patch) {
         return JsonMergePatchEdit.withDocumentId(documentId)
                 .clientId(clientId)
                 .diff(patch)

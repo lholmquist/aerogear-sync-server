@@ -26,7 +26,6 @@ import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchDiff;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
@@ -99,15 +98,11 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     }
 
     private static JsonNode patch(final JsonPatchEdit edit, final JsonNode target) {
-        JsonNode patched = target.deepCopy();
         try {
-            for (JsonPatchDiff diff : edit.diffs()) {
-                patched = diff.jsonPatch().apply(patched);
-            }
+            return edit.diff().jsonPatch().apply(target);
         } catch (final JsonPatchException e) {
             throw new RuntimeException(e.getMessage(), e);
         }
-        return patched;
     }
 
     public static String checksum(final JsonNode content) {

@@ -103,7 +103,7 @@ public class ServerSyncEngineIntegrationTest {
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientId(), equalTo(clientTwo));
-        final LinkedList<DiffMatchPatchDiff> diffs = edit.diffs();
+        final LinkedList<DiffMatchPatchDiff> diffs = edit.diff().diffs();
         assertThat(diffs.size(), is(3));
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(1).operation(), is(Operation.DELETE));
@@ -145,9 +145,9 @@ public class ServerSyncEngineIntegrationTest {
         final DiffMatchPatchEdit clientOneServerEdit = clientOneServerPatchMessage.edits().peek();
         assertThat(clientOneServerEdit.clientVersion(), is(1L));
         assertThat(clientOneServerEdit.serverVersion(), is(0L));
-        assertThat(clientOneServerEdit.diffs().size(), is(1));
-        assertThat(clientOneServerEdit.diffs().get(0).operation(), is(Operation.UNCHANGED));
-        assertThat(clientOneServerEdit.diffs().get(0).text(), equalTo(versionTwo));
+        assertThat(clientOneServerEdit.diff().diffs().size(), is(1));
+        assertThat(clientOneServerEdit.diff().diffs().get(0).operation(), is(Operation.UNCHANGED));
+        assertThat(clientOneServerEdit.diff().diffs().get(0).text(), equalTo(versionTwo));
         // no patch required for clientOneSyncEngine as this was performed after the diff was taken.
         clientOneSyncEngine.patch(clientOneServerPatchMessage);
 
@@ -158,7 +158,7 @@ public class ServerSyncEngineIntegrationTest {
         final DiffMatchPatchEdit clientTwoServerEdit = clientTwoServerPatchMessage.edits().peek();
         assertThat(clientTwoServerEdit.clientVersion(), is(0L));
         assertThat(clientTwoServerEdit.serverVersion(), is(0L));
-        final LinkedList<DiffMatchPatchDiff> clientTwoServerDiffs = clientTwoServerEdit.diffs();
+        final LinkedList<DiffMatchPatchDiff> clientTwoServerDiffs = clientTwoServerEdit.diff().diffs();
         assertThat(clientTwoServerDiffs.size(), is(3));
         assertThat(clientTwoServerDiffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(clientTwoServerDiffs.get(0).text(), equalTo("Do or do not, there is no try"));
@@ -172,7 +172,7 @@ public class ServerSyncEngineIntegrationTest {
         final DiffMatchPatchEdit thirdEdit = serverSyncEngine.diff(documentId, clientTwo);
         assertThat(thirdEdit.clientVersion(), is(0L));
         assertThat(thirdEdit.serverVersion(), is(1L));
-        final LinkedList<DiffMatchPatchDiff> thirdDiffs = thirdEdit.diffs();
+        final LinkedList<DiffMatchPatchDiff> thirdDiffs = thirdEdit.diff().diffs();
         assertThat(thirdDiffs.size(), is(3));
         assertThat(thirdDiffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(thirdDiffs.get(1).operation(), is(Operation.ADD));

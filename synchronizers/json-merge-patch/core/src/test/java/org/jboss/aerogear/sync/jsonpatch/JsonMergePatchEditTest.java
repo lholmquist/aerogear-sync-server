@@ -23,6 +23,7 @@ import org.junit.Test;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class JsonMergePatchEditTest {
@@ -35,8 +36,8 @@ public class JsonMergePatchEditTest {
         final JsonMergePatchEdit edit = JsonMergePatchEdit.withDocumentId("1234")
                 .clientId("client1")
                 .diff(jsonMergePatch).build();
-        assertThat(edit.diffs().isEmpty(), is(false));
-        assertThat(edit.diffs().get(0).jsonMergePatch(), equalTo(jsonMergePatch));
+        assertThat(edit.diff(), is(notNullValue()));
+        assertThat(edit.diff().jsonMergePatch(), equalTo(jsonMergePatch));
     }
 
 

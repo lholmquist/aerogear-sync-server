@@ -49,7 +49,7 @@ public class JsonMergePatchMessage implements PatchMessage<JsonMergePatchEdit> {
 
     @Override
     public String toString() {
-        return "JsonPatchMessage[documentId=" + documentId + ", clientId=" + clientId + ", edits=" + edits + ']';
+        return "JsonMergePatchMessage[documentId=" + documentId + ", clientId=" + clientId + ", edits=" + edits + ']';
     }
 
     @Override

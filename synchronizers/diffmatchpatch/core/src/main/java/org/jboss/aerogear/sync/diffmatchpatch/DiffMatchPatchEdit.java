@@ -22,14 +22,14 @@ import java.util.LinkedList;
 
 import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operation;
 
-public class DiffMatchPatchEdit implements Edit {
+public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
 
     private final String clientId;
     private final String documentId;
     private final long clientVersion;
     private final long serverVersion;
     private final String checksum;
-    private final LinkedList<DiffMatchPatchDiff> diffs;
+    private final DiffMatchPatchDiffs diffs;
 
     private DiffMatchPatchEdit(final Builder builder) {
         clientId = builder.clientId;
@@ -37,7 +37,7 @@ public class DiffMatchPatchEdit implements Edit {
         clientVersion = builder.clientVersion;
         serverVersion = builder.serverVersion;
         checksum = builder.checksum;
-        diffs = builder.diffs;
+        diffs = new DiffMatchPatchDiffs(builder.diffs);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class DiffMatchPatchEdit implements Edit {
     }
 
     @Override
-    public LinkedList<DiffMatchPatchDiff> diffs() {
+    public DiffMatchPatchDiffs diff() {
         return diffs;
     }
 

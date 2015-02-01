@@ -36,11 +36,11 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class ClientSyncEngineTest {
 
     private ClientSyncEngine<String, DiffMatchPatchEdit> engine;
-    private ClientInMemoryDataStore dataStore;
+    private ClientInMemoryDataStore<String, DiffMatchPatchEdit> dataStore;
 
     @Before
     public void setup() {
-        dataStore = new ClientInMemoryDataStore();
+        dataStore = new ClientInMemoryDataStore<String, DiffMatchPatchEdit>();
         engine = new ClientSyncEngine<String, DiffMatchPatchEdit>(new DefaultClientSynchronizer(), dataStore);
     }
 
@@ -74,8 +74,8 @@ public class ClientSyncEngineTest {
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
         final DiffMatchPatchEdit edit = patchMessage.edits().peek();
-        assertThat(edit.diffs().size(), is(4));
-        final LinkedList<DiffMatchPatchDiff> diffs = edit.diffs();
+        assertThat(edit.diff().diffs().size(), is(4));
+        final LinkedList<DiffMatchPatchDiff> diffs = edit.diff().diffs();
         assertThat(diffs.size(), is(4));
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
         assertThat(diffs.get(0).text(), is("{\"id\": "));
