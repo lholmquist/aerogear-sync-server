@@ -96,6 +96,26 @@
             </dependency>
             <dependency>
                 <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch-server</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
+                <artifactId>sync-json-merge-patch-client</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jboss.aerogear</groupId>
                 <artifactId>sync-core</artifactId>
                 <version>${project.version}</version>
             </dependency>
