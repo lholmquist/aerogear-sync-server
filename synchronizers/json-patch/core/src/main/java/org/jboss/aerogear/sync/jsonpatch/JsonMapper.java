@@ -43,7 +43,7 @@ public final class JsonMapper {
 
     private static ObjectMapper createObjectMapper() {
         om = new ObjectMapper();
-        final SimpleModule module = new SimpleModule("JsonPatch", new Version(1, 0, 0, null, "aerogear", "sync"));
+        final SimpleModule module = new SimpleModule("JsonMergePatch", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(JsonPatchEdit.class, new EditDeserializer());
         module.addSerializer(JsonPatchEdit.class, new EditSerializer());
         module.addDeserializer(JsonPatchMessage.class, new PatchMessageDeserializer());
