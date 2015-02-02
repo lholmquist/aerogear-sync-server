@@ -9,13 +9,21 @@ that uses [DiffMatchPatch](../synchronizers/diffmatchpath) for diffs/patches
 
     mvn exec:exec -Pdiffmatch
 
-### JsonPatchDiffSyncServer
+### JsonPatchSyncServer
 The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonPatchSyncServer.java) is a standalone 
-server implementation that uses [JSON Patch](../synchronizers/json-patch)for diff/patches.
+server implementation that uses [JSON Patch](../synchronizers/json-patch) for diff/patches.
 
 #### Starting using Maven
 
     mvn exec:exec -Pjsonpatch
+    
+### JsonMergePatchSyncServer
+The [JsonMergePatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonMergePatchSyncServer.java) is a standalone 
+server implementation that uses [JSON Merge Patch](../synchronizers/json-merge-patch) for diff/patches.
+
+#### Starting using Maven
+
+    mvn exec:exec -Pjsonmerge
 
 ### Configuration option
 The server can be configured using [sync.config](./src/main/resources/sync.config)
