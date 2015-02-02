@@ -24,7 +24,7 @@ import java.util.Queue;
  *
  * @param <T> The type of the Document that this data store can handle.
  */
-public interface DataStore<T, S extends Edit> {
+public interface DataStore<T, S extends Edit<? extends Diff>> {
 
     /**
      * Saves a shadow document.

@@ -22,6 +22,7 @@ import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DefaultBackupShadowDocument;
 import org.jboss.aerogear.sync.DefaultShadowDocument;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
@@ -36,7 +37,7 @@ import java.util.Queue;
  *
  * @param <T> The type of document that this implementation can handle.
  */
-public class ClientSyncEngine<T, S extends Edit> extends Observable {
+public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observable {
 
     private static final  ObjectMapper OM = new ObjectMapper();
     private final ClientSynchronizer<T, S> clientSynchronizer;
@@ -147,7 +148,7 @@ public class ClientSyncEngine<T, S extends Edit> extends Observable {
         return shadow;
     }
 
-    private static boolean isSeedVersion(final Edit edit) {
+    private boolean isSeedVersion(final S edit) {
         return edit.clientVersion() == -1;
     }
 
@@ -183,15 +184,15 @@ public class ClientSyncEngine<T, S extends Edit> extends Observable {
         iterator.remove();
     }
 
-    private boolean allVersionsMatch(final Edit edit, final ShadowDocument<T> shadow) {
+    private boolean allVersionsMatch(final S edit, final ShadowDocument<T> shadow) {
         return edit.serverVersion() == shadow.serverVersion() && edit.clientVersion() == shadow.clientVersion();
     }
 
-    private boolean clientPacketDropped(final Edit edit, final ShadowDocument<T> shadow) {
+    private boolean clientPacketDropped(final S edit, final ShadowDocument<T> shadow) {
         return edit.clientVersion() < shadow.clientVersion() && !isSeedVersion(edit);
     }
     
-    private boolean hasServerVersion(final Edit edit, final ShadowDocument<T> shadow) {
+    private boolean hasServerVersion(final S edit, final ShadowDocument<T> shadow) {
         return edit.serverVersion() < shadow.serverVersion();
     }
 

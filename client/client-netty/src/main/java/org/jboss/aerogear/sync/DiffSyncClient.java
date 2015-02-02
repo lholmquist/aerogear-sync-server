@@ -43,7 +43,7 @@ import java.util.Observer;
 /**
  * A Netty based WebSocket client that is able to handle differential synchronization edits.
  */
-public final class DiffSyncClient<T, S extends Edit> extends Observable {
+public final class DiffSyncClient<T, S extends Edit<? extends Diff>> extends Observable {
 
     private final String host;
     private final int port;
@@ -125,11 +125,11 @@ public final class DiffSyncClient<T, S extends Edit> extends Observable {
         System.out.println("SyncClient disconnected");
     }
     
-    public static <T, S extends Edit> Builder<T, S> forHost(final String host) {
+    public static <T, S extends Edit<? extends Diff>> Builder<T, S> forHost(final String host) {
         return new Builder<T, S>(host);
     }
     
-    public static class Builder<T, S extends Edit> {
+    public static class Builder<T, S extends Edit<? extends Diff>> {
         
         private final String host;
         private int port;

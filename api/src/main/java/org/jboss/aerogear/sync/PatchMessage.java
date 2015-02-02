@@ -21,7 +21,7 @@ import java.util.Queue;
 /**
  * Represents a stack of edits.
  */
-public interface PatchMessage<T extends Edit> extends Payload<PatchMessage<T>> {
+public interface PatchMessage<T extends Edit<? extends Diff>> extends Payload<PatchMessage<T>> {
 
     /**
      * Identifies the client that this edit instance belongs to.

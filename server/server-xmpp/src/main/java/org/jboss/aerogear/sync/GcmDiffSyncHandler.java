@@ -44,7 +44,7 @@ import org.jivesoftware.smack.PacketListener;
 
 import static org.jboss.aerogear.sync.GcmMessages.createJsonMessage;
 
-public class GcmDiffSyncHandler<T, S extends Edit> implements PacketListener {
+public class GcmDiffSyncHandler<T, S extends Edit<? extends Diff>> implements PacketListener {
 
     private static final Logger logger = Logger.getLogger(GcmDiffSyncHandler.class.getCanonicalName());
     private static final String GCM_ELEMENT_NAME = "gcm";

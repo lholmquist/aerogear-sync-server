@@ -37,7 +37,7 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 
-public class GcmHandler<T, S extends Edit> extends ChannelHandlerAdapter {
+public class GcmHandler<T, S extends Edit<? extends Diff>> extends ChannelHandlerAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GcmHandler.class);
 

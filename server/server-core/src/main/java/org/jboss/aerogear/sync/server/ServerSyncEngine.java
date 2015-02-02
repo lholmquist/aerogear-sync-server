@@ -33,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <T> The type of document that this implementation can handle.
  */
-public class ServerSyncEngine<T, S extends Edit> {
+public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
 
     private static final Logger logger = LoggerFactory.getLogger(ServerSyncEngine.class);
     private static final int SEEDED_CLIENT_VERSION = -1;
@@ -292,19 +292,19 @@ public class ServerSyncEngine<T, S extends Edit> {
         return saveShadow(shadow);
     }
 
-    private boolean serverVersionMatch(final BackupShadowDocument<T> backup, final Edit edit) {
+    private boolean serverVersionMatch(final BackupShadowDocument<T> backup, final S edit) {
         return backup.version() == edit.serverVersion();
     }
 
-    private boolean droppedServerPacket(final Edit edit, final ShadowDocument<T> shadowDocument) {
+    private boolean droppedServerPacket(final S edit, final ShadowDocument<T> shadowDocument) {
         return edit.serverVersion() < shadowDocument.serverVersion();
     }
 
-    private boolean hasClientUpdate(final Edit edit, final ShadowDocument<T> shadowDocument) {
+    private boolean hasClientUpdate(final S edit, final ShadowDocument<T> shadowDocument) {
         return edit.clientVersion() < shadowDocument.clientVersion();
     }
 
-    private boolean allVersionMatch(final Edit edit, final ShadowDocument<T> shadowDocument) {
+    private boolean allVersionMatch(final S edit, final ShadowDocument<T> shadowDocument) {
         return edit.serverVersion() == shadowDocument.serverVersion()
                 && edit.clientVersion() == shadowDocument.clientVersion();
     }

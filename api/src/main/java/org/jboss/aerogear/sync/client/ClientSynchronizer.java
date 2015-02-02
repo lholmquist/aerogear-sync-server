@@ -18,6 +18,7 @@ package org.jboss.aerogear.sync.client;
 
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
@@ -31,7 +32,7 @@ import java.util.Queue;
  * @param <T> The type of documents that this synchronizer can handle
  * @param <S> The type of {@link Edit}s that this synchronizer can handle
  */
-public interface ClientSynchronizer<T, S extends Edit> {
+public interface ClientSynchronizer<T, S extends Edit<? extends Diff>> {
 
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.

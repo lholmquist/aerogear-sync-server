@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @ChannelHandler.Sharable
-public class DiffSyncHandler<T, S extends Edit> extends SimpleChannelInboundHandler<WebSocketFrame> {
+public class DiffSyncHandler<T, S extends Edit<? extends Diff>> extends SimpleChannelInboundHandler<WebSocketFrame> {
 
     private static final Logger logger = LoggerFactory.getLogger(DiffSyncHandler.class);
     private static final AttributeKey<Boolean> DOC_ADD = AttributeKey.valueOf(DiffSyncHandler.class, "DOC_ADD");

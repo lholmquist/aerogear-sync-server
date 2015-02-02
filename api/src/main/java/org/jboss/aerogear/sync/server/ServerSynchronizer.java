@@ -17,6 +17,7 @@
 package org.jboss.aerogear.sync.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.PatchMessage;
@@ -31,7 +32,7 @@ import java.util.Queue;
  * @param <T> The type of documents that this engine can handle.
  * @param <S> The type of {@link Edit}s that this synchronizer can handle
  */
-public interface ServerSynchronizer<T, S extends Edit> {
+public interface ServerSynchronizer<T, S extends Edit<? extends Diff>> {
 
     /**
      * Called when the shadow should be patched. Is called when an update is recieved.

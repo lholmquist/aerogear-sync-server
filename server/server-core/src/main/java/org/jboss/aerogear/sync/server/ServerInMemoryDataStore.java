@@ -18,6 +18,7 @@ package org.jboss.aerogear.sync.server;
 
 import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
@@ -29,7 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-public class ServerInMemoryDataStore<T, S extends Edit> implements ServerDataStore<T, S> {
+public class ServerInMemoryDataStore<T, S extends Edit<? extends Diff>> implements ServerDataStore<T, S> {
 
     private final Queue<S> emptyQueue = new LinkedList<S>();
     private final ConcurrentMap<String, Document<T>> documents = new ConcurrentHashMap<String, Document<T>>();

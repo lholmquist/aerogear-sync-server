@@ -18,6 +18,7 @@ package org.jboss.aerogear.sync.client;
 
 import org.jboss.aerogear.sync.BackupShadowDocument;
 import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Edit;
 import org.jboss.aerogear.sync.ShadowDocument;
 
@@ -28,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 
-public class ClientInMemoryDataStore<T, S extends Edit> implements ClientDataStore<T, S> {
+public class ClientInMemoryDataStore<T, S extends Edit<? extends Diff>> implements ClientDataStore<T, S> {
 
     private final Queue<S> emptyQueue = new LinkedList<S>();
     private final ConcurrentMap<Id, ClientDocument<T>> documents = new ConcurrentHashMap<Id, ClientDocument<T>>();
@@ -104,7 +105,7 @@ public class ClientInMemoryDataStore<T, S extends Edit> implements ClientDataSto
             final Queue<S> newEdits = new ConcurrentLinkedQueue<S>();
             newEdits.addAll(currentEdits);
             for (Iterator<S> iter = newEdits.iterator(); iter.hasNext();) {
-                final Edit oldEdit = iter.next();
+                final S oldEdit = iter.next();
                 if (oldEdit.clientVersion() <= edit.clientVersion()) {
                     iter.remove();
                 }

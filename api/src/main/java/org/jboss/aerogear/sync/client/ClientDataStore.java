@@ -18,6 +18,7 @@ package org.jboss.aerogear.sync.client;
 
 import org.jboss.aerogear.sync.ClientDocument;
 import org.jboss.aerogear.sync.DataStore;
+import org.jboss.aerogear.sync.Diff;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.Edit;
 
@@ -28,7 +29,7 @@ import org.jboss.aerogear.sync.Edit;
  * @param <T> The type of the Document that this data store can handle.
  * @param <S> The type of {@link Edit}s that this synchronizer can handle
  */
-public interface ClientDataStore<T, S extends Edit> extends DataStore<T, S> {
+public interface ClientDataStore<T, S extends Edit<? extends Diff>> extends DataStore<T, S> {
 
     /**
      * Saves a client document.
