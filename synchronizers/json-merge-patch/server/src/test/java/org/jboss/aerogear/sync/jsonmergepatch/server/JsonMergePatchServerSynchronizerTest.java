@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch.server;
+package org.jboss.aerogear.sync.jsonmergepatch.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,8 +27,8 @@ import org.jboss.aerogear.sync.DefaultShadowDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchDiff;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchEdit;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchDiff;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -40,10 +40,10 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class JsonPatchServerSynchronizerTest {
+public class JsonMergePatchServerSynchronizerTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
-    private final JsonPatchServerSynchronizer syncer = new JsonPatchServerSynchronizer();
+    private final JsonMergePatchServerSynchronizer syncer = new JsonMergePatchServerSynchronizer();
 
     @Test
     public void clientDiff() throws Exception {

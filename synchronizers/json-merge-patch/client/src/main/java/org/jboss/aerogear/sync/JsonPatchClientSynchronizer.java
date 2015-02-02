@@ -21,9 +21,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
-import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchEdit;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchMessage;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
 import java.math.BigInteger;

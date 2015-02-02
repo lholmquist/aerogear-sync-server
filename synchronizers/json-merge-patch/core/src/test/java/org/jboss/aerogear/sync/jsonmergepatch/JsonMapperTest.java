@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch;
+package org.jboss.aerogear.sync.jsonmergepatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +22,9 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.PatchMessage;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchMessage;
 import org.junit.Test;
 
 import java.util.Arrays;

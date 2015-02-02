@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch.server;
+package org.jboss.aerogear.sync.jsonmergepatch.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.github.fge.jsonpatch.JsonPatchException;
@@ -25,9 +25,9 @@ import org.jboss.aerogear.sync.DefaultShadowDocument;
 import org.jboss.aerogear.sync.Document;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
-import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchEdit;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchMessage;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,10 +40,10 @@ import java.util.Queue;
 /**
  * A {@link ServerSynchronizer} implementation that can handle text documents.
  */
-public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode, JsonMergePatchEdit> {
+public class JsonMergePatchServerSynchronizer implements ServerSynchronizer<JsonNode, JsonMergePatchEdit> {
 
     private static final String UTF_8 = Charset.forName("UTF-8").displayName();
-    private static final Logger logger = LoggerFactory.getLogger(JsonPatchServerSynchronizer.class);
+    private static final Logger logger = LoggerFactory.getLogger(JsonMergePatchServerSynchronizer.class);
 
     @Override
     public JsonMergePatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {

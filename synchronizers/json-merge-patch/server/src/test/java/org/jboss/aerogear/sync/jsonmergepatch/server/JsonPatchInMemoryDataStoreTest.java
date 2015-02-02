@@ -14,13 +14,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync.jsonpatch.server;
+package org.jboss.aerogear.sync.jsonmergepatch.server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.aerogear.sync.DefaultDocument;
 import org.jboss.aerogear.sync.Document;
-import org.jboss.aerogear.sync.jsonpatch.JsonMergePatchEdit;
+import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
 import org.jboss.aerogear.sync.server.ServerInMemoryDataStore;
 import org.junit.Test;
 

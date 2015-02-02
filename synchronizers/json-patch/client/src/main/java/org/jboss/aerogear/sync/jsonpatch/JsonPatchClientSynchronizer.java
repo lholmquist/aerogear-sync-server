@@ -14,11 +14,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.jboss.aerogear.sync;
+package org.jboss.aerogear.sync.jsonpatch;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.diff.JsonDiff;
+import org.jboss.aerogear.sync.ClientDocument;
+import org.jboss.aerogear.sync.DefaultClientDocument;
+import org.jboss.aerogear.sync.DefaultShadowDocument;
+import org.jboss.aerogear.sync.PatchMessage;
+import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
 import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
 import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
