@@ -51,22 +51,16 @@ public class DiffMatchPatchServerSynchronizer implements ServerSynchronizer<Stri
     public DiffMatchPatchEdit clientDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
-        return DiffMatchPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
-                .checksum(checksum(shadowText))
-                .diffs(asAeroGearDiffs(diffs))
-                .build();
+        return DiffMatchPatchEdit.withChecksum(checksum(shadowText)).diffs(asAeroGearDiffs(diffs)).build();
     }
 
     @Override
     public DiffMatchPatchEdit serverDiff(final Document<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return DiffMatchPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return DiffMatchPatchEdit.withChecksum(checksum(shadowText))
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
-                .checksum(checksum(shadowText))
                 .diffs(asAeroGearDiffs(diffs))
                 .build();
     }

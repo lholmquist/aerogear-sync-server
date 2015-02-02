@@ -48,22 +48,18 @@ public class JsonPatchServerSynchronizer implements ServerSynchronizer<JsonNode,
     @Override
     public JsonPatchEdit clientDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(document.content(), shadowObject))
                 .checksum(checksum(shadowObject))
-                .diff(JsonDiff.asJsonPatch(document.content(), shadowObject))
                 .build();
     }
 
     @Override
     public JsonPatchEdit serverDiff(final Document<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(shadowObject, document.content()))
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
                 .checksum(checksum(shadowObject))
-                .diff(JsonDiff.asJsonPatch(shadowObject, document.content()))
                 .build();
     }
 

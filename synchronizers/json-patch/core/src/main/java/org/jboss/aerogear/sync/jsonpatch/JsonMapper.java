@@ -130,13 +130,12 @@ public final class JsonMapper {
                     if (edit.isNull()) {
                         continue;
                     }
-                    final Builder eb = JsonPatchEdit.withDocumentId(documentId).clientId(clientId);
+                    final Builder eb = JsonPatchEdit.withChecksum(edit.get("checksum").asText());
                     eb.clientVersion(edit.get("clientVersion").asLong());
                     eb.serverVersion(edit.get("serverVersion").asLong());
-                    eb.checksum(edit.get("checksum").asText());
                     final JsonNode diffsNode = edit.get("diffs");
                     if (!diffsNode.isNull()) {
-                        eb.diff(JsonPatch.fromJson(diffsNode));
+                        eb.patch(JsonPatch.fromJson(diffsNode));
                     }
                     edits.add(eb.build());
                 }
@@ -161,8 +160,6 @@ public final class JsonMapper {
                     continue;
                 }
                 jgen.writeStartObject();
-                jgen.writeStringField("clientId", edit.clientId());
-                jgen.writeStringField("id", edit.documentId());
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
@@ -182,14 +179,13 @@ public final class JsonMapper {
         public JsonPatchEdit deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode edit = oc.readTree(jp);
-            final Builder eb = JsonPatchEdit.withDocumentId(edit.get("id").asText());
-            eb.clientId(edit.get("clientId").asText());
+            final Builder eb = JsonPatchEdit.withChecksum(edit.get("checksum").asText());
             eb.clientVersion(edit.get("clientVersion").asLong());
             eb.serverVersion(edit.get("serverVersion").asLong());
             eb.checksum(edit.get("checksum").asText());
             final JsonNode diffsNode = edit.get("diffs");
             if (!diffsNode.isNull()) {
-                eb.diff(JsonPatch.fromJson(diffsNode));
+                eb.patch(JsonPatch.fromJson(diffsNode));
             }
             return eb.build();
         }
@@ -203,15 +199,12 @@ public final class JsonMapper {
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
             jgen.writeStringField("msgType", "patch");
-            jgen.writeStringField("clientId", edit.clientId());
-            jgen.writeStringField("id", edit.documentId());
             jgen.writeNumberField("clientVersion", edit.clientVersion());
             jgen.writeNumberField("serverVersion", edit.serverVersion());
             jgen.writeStringField("checksum", edit.checksum());
             if (edit.diff() != null) {
                 jgen.writeObjectField("diffs", edit.diff().jsonPatch());
             }
-            //jgen.writeEndArray();
         }
     }
 }

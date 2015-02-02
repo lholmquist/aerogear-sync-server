@@ -29,7 +29,7 @@ public class DiffMatchPatchMessageTest {
 
     @Test
     public void diffMatchPatch() {
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId("1234").clientId("client1").unchanged("kalle").build();
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus").unchanged("kalle").build();
         final PatchMessage<DiffMatchPatchEdit> patchMessage = new DiffMatchPatchMessage("1234", "client1",
                 new LinkedList<DiffMatchPatchEdit>(Arrays.asList(edit)));
         assertThat(patchMessage.documentId(), equalTo("1234"));

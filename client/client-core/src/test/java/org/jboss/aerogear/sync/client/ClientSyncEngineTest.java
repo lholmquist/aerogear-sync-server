@@ -94,8 +94,8 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId, DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId,
+                DiffMatchPatchEdit.withChecksum("bogus")
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
@@ -119,8 +119,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
@@ -146,8 +145,7 @@ public class ClientSyncEngineTest {
         final String originalVersion = "Do or do not, there is no try.";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
                 .clientVersion(-1)
                 .serverVersion(1)
                 .unchanged("Do or do not, there is no try")
@@ -175,15 +173,13 @@ public class ClientSyncEngineTest {
         final String finalVersion = "Do or do nothing, there is no try!";
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final DiffMatchPatchEdit edit1 = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final DiffMatchPatchEdit edit1 = DiffMatchPatchEdit.withChecksum("bogus")
                 .serverVersion(0)
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
                 .build();
-        final DiffMatchPatchEdit edit2 = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final DiffMatchPatchEdit edit2 = DiffMatchPatchEdit.withChecksum("bogus")
                 .serverVersion(1)
                 .unchanged("Do or do not")
                 .add("hing")
@@ -212,8 +208,8 @@ public class ClientSyncEngineTest {
         // and server version 0.
         engine.addDocument(clientDoc(documentId, clientId, originalVersion));
 
-        final PatchMessage<DiffMatchPatchEdit> serverPatch = patchMessage(documentId, clientId, DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final PatchMessage<DiffMatchPatchEdit> serverPatch = patchMessage(documentId, clientId,
+                DiffMatchPatchEdit.withChecksum("bogus")
                 .clientVersion(0)  // this patch was based on client version 0
                 .serverVersion(0)  // this patch was based on server version 0
                 .unchanged("Do or do not, there is no try")
@@ -241,8 +237,8 @@ public class ClientSyncEngineTest {
         // some where on route to the server.
         dataStore.saveShadowDocument(shadowDoc(documentId, clientId, 1L, 1L, "Do or do nothing, there is not trying"));
 
-        final PatchMessage<DiffMatchPatchEdit> serverPatch2 = patchMessage(documentId, clientId, DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final PatchMessage<DiffMatchPatchEdit> serverPatch2 = patchMessage(documentId, clientId,
+                DiffMatchPatchEdit.withChecksum("bogus")
                 // this is to simulate an earlier version coming from the server, which means that the server never
                 // got version 1 that the client sent. Remember that we are simulating this using the previous
                 // saveShadowDocument call above which set the client version to 1.

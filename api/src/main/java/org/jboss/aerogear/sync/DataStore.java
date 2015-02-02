@@ -62,8 +62,10 @@ public interface DataStore<T, S extends Edit<? extends Diff>> {
      * Saves an {@link Edit} to the data store.
      *
      * @param edit the edit to be saved.
+     * @param documentId the document identifier for the edit
+     * @param clientId the client identifier for the edit
      */
-    void saveEdits(S edit);
+    void saveEdits(S edit, String documentId, String clientId);
 
     /**
      * Retreives the queue of {@link Edit}s for the specified document documentId.
@@ -78,8 +80,10 @@ public interface DataStore<T, S extends Edit<? extends Diff>> {
      * Removes the edit from the store.
      *
      * @param edit the edit to be removed.
+     * @param documentId the document identifier for the edit
+     * @param clientId the client identifier for the edit
      */
-    void removeEdit(S edit);
+    void removeEdit(S edit, String documentId, String clientId);
 
     /**
      * Removes all edits for the specific client and document pair.

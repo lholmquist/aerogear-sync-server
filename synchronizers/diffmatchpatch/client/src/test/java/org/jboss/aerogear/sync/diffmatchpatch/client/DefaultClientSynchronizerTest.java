@@ -49,7 +49,6 @@ public class DefaultClientSynchronizerTest {
         final DiffMatchPatchEdit edit = clientSynchronizer.clientDiff(clientShadow, newDoc(documentId, clientId, update));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
-        assertThat(edit.clientId(), is(clientId));
         assertThat(edit.diff().diffs().size(), is(3));
         final List<DiffMatchPatchDiff> diffs = edit.diff().diffs();
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));
@@ -68,8 +67,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do not, there is no try!";
         final ShadowDocument<String> clientShadow = shadowDocument(documentId, clientId, originalVersion);
 
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
                 .unchanged("Do or do not, there is no try")
                 .delete(".")
                 .add("!")
@@ -86,8 +84,7 @@ public class DefaultClientSynchronizerTest {
         final String updatedVersion = "Do or do nothing, there is no try.";
         final ClientDocument<String> clientShadow = new DefaultClientDocument<String>(documentId, clientId, originalVersion);
 
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
                 .unchanged("Do or do not")
                 .add("hing")
                 .unchanged(", there is no try.")

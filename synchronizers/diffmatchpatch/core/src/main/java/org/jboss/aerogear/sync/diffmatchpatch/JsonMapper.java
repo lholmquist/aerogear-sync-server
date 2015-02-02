@@ -43,7 +43,7 @@ public final class JsonMapper {
 
     private static ObjectMapper createObjectMapper() {
         om = new ObjectMapper();
-        final SimpleModule module = new SimpleModule("DiffMatchPatch", new Version(1, 0, 0, null, "aerogear", "sync"));
+        final SimpleModule module = new SimpleModule("DiffMatch", new Version(1, 0, 0, null, "aerogear", "sync"));
         module.addDeserializer(DiffMatchPatchEdit.class, new EditDeserializer());
         module.addSerializer(DiffMatchPatchEdit.class, new EditSerializer());
         module.addDeserializer(DiffMatchPatchMessage.class, new PatchMessageDeserializer());
@@ -130,10 +130,9 @@ public final class JsonMapper {
                     if (edit.isNull()) {
                         continue;
                     }
-                    final Builder eb = DiffMatchPatchEdit.withDocumentId(documentId).clientId(clientId);
+                    final Builder eb = DiffMatchPatchEdit.withChecksum(edit.get("checksum").asText());
                     eb.clientVersion(edit.get("clientVersion").asLong());
                     eb.serverVersion(edit.get("serverVersion").asLong());
-                    eb.checksum(edit.get("checksum").asText());
                     final JsonNode diffsNode = edit.get("diffs");
                     if (diffsNode.isArray()) {
                         for (JsonNode d : diffsNode) {
@@ -166,8 +165,6 @@ public final class JsonMapper {
                     continue;
                 }
                 jgen.writeStartObject();
-                jgen.writeStringField("clientId", edit.clientId());
-                jgen.writeStringField("id", edit.documentId());
                 jgen.writeNumberField("clientVersion", edit.clientVersion());
                 jgen.writeNumberField("serverVersion", edit.serverVersion());
                 jgen.writeStringField("checksum", edit.checksum());
@@ -194,11 +191,9 @@ public final class JsonMapper {
         public DiffMatchPatchEdit deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
             final ObjectCodec oc = jp.getCodec();
             final JsonNode edit = oc.readTree(jp);
-            final Builder eb = DiffMatchPatchEdit.withDocumentId(edit.get("id").asText());
-            eb.clientId(edit.get("clientId").asText());
+            final Builder eb = DiffMatchPatchEdit.withChecksum(edit.get("checksum").asText());
             eb.clientVersion(edit.get("clientVersion").asLong());
             eb.serverVersion(edit.get("serverVersion").asLong());
-            eb.checksum(edit.get("checksum").asText());
             final JsonNode diffsNode = edit.get("diffs");
             if (diffsNode.isArray()) {
                 for (JsonNode d : diffsNode) {
@@ -217,8 +212,6 @@ public final class JsonMapper {
                               final SerializerProvider provider) throws IOException {
             jgen.writeStartObject();
             jgen.writeStringField("msgType", "patch");
-            jgen.writeStringField("clientId", edit.clientId());
-            jgen.writeStringField("id", edit.documentId());
             jgen.writeNumberField("clientVersion", edit.clientVersion());
             jgen.writeNumberField("serverVersion", edit.serverVersion());
             jgen.writeStringField("checksum", edit.checksum());

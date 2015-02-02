@@ -24,30 +24,16 @@ import static org.jboss.aerogear.sync.diffmatchpatch.DiffMatchPatchDiff.Operatio
 
 public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
 
-    private final String clientId;
-    private final String documentId;
     private final long clientVersion;
     private final long serverVersion;
     private final String checksum;
     private final DiffMatchPatchDiffs diffs;
 
     private DiffMatchPatchEdit(final Builder builder) {
-        clientId = builder.clientId;
-        documentId = builder.documentId;
         clientVersion = builder.clientVersion;
         serverVersion = builder.serverVersion;
         checksum = builder.checksum;
         diffs = new DiffMatchPatchDiffs(builder.diffs);
-    }
-
-    @Override
-    public String clientId() {
-        return clientId;
-    }
-
-    @Override
-    public String documentId() {
-        return documentId;
     }
 
     @Override
@@ -87,22 +73,15 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
         if (serverVersion != that.serverVersion) {
             return false;
         }
-        if (!checksum.equals(that.checksum)) {
-            return false;
-        }
-        if (!clientId.equals(that.clientId)) {
-            return false;
-        }
         if (!diffs.equals(that.diffs)) {
             return false;
         }
-        return !documentId.equals(that.documentId);
+        return !checksum.equals(that.checksum);
     }
 
     @Override
     public int hashCode() {
-        int result = clientId.hashCode();
-        result = 31 * result + documentId.hashCode();
+        int result = checksum.hashCode();
         result = 31 * result + (int) (clientVersion ^ clientVersion >>> 32);
         result = 31 * result + (int) (serverVersion ^ serverVersion >>> 32);
         result = 31 * result + checksum.hashCode();
@@ -112,37 +91,24 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
 
     @Override
     public String toString() {
-        return "DefaultEdit[documentId=" + documentId  +
-                ", clientId=" + clientId +
-                ", serverVersion=" + serverVersion +
+        return "DefaultEdit[serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
                 ", diffs=" + diffs + ']';
     }
 
-    public static Builder withDocumentId(final String documentId) {
-        return new Builder(documentId);
+    public static Builder withChecksum(final String checksum) {
+        return new Builder(checksum);
     }
 
     public static class Builder {
 
-        private final String documentId;
-        private String clientId;
         private long serverVersion;
         private long clientVersion;
-        private String checksum;
+        private final String checksum;
         private final LinkedList<DiffMatchPatchDiff> diffs = new LinkedList<DiffMatchPatchDiff>();
 
-        public static Builder withDocumentId(final String documentId) {
-            return new Builder(documentId);
-        }
-
-        private Builder(final String documentId) {
-            this.documentId = documentId;
-        }
-
-        public Builder clientId(final String clientId) {
-            this.clientId = clientId;
-            return this;
+        private Builder(final String checksum) {
+            this.checksum = checksum;
         }
 
         public Builder serverVersion(final long serverVersion) {
@@ -180,15 +146,7 @@ public class DiffMatchPatchEdit implements Edit<DiffMatchPatchDiffs> {
             return this;
         }
 
-        public Builder checksum(final String checksum) {
-            this.checksum = checksum;
-            return this;
-        }
-
         public DiffMatchPatchEdit build() {
-            if (clientId == null) {
-                throw new IllegalArgumentException("clientId must not be null");
-            }
             return new DiffMatchPatchEdit(this);
         }
     }

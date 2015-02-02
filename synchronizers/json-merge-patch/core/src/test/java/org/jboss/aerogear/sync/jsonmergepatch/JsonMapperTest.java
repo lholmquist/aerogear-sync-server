@@ -22,9 +22,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.github.fge.jsonpatch.JsonPatchException;
 import com.github.fge.jsonpatch.mergepatch.JsonMergePatch;
 import org.jboss.aerogear.sync.PatchMessage;
-import org.jboss.aerogear.sync.jsonmergepatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchEdit;
-import org.jboss.aerogear.sync.jsonmergepatch.JsonMergePatchMessage;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -78,9 +75,7 @@ public class JsonMapperTest {
 
     @Test
     public void jsonMergePatchEditToJson() {
-        final String documentId = "1234";
-        final String clientId = "client1";
-        final String json = JsonMapper.toJson(jsonMergePatchEdit(documentId, clientId, jsonMergePatch()));
+        final String json = JsonMapper.toJson(jsonMergePatchEdit(jsonMergePatch()));
         final JsonNode edit = JsonMapper.asJsonNode(json);
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
@@ -90,13 +85,9 @@ public class JsonMapperTest {
 
     @Test
     public void jsonMergePatchEditFromJson() throws JsonPatchException {
-        final String documentId = "1234";
-        final String clientId = "client1";
         final ObjectNode original = objectMapper.createObjectNode().put("name", "fletch");
-        final String json = JsonMapper.toJson(jsonMergePatchEdit(documentId, clientId, jsonMergePatch()));
+        final String json = JsonMapper.toJson(jsonMergePatchEdit(jsonMergePatch()));
         final JsonMergePatchEdit edit = JsonMapper.fromJson(json, JsonMergePatchEdit.class);
-        assertThat(edit.documentId(), equalTo(documentId));
-        assertThat(edit.clientId(), equalTo(clientId));
         assertThat(edit.diff(), is(notNullValue()));
         final JsonMergePatch patch = edit.diff().jsonMergePatch();
         final JsonNode patched = patch.apply(original);
@@ -105,23 +96,17 @@ public class JsonMapperTest {
 
     private static PatchMessage<JsonMergePatchEdit> patchMessage(final String documentId, final String clientId) {
         final JsonMergePatch jsonPatch = jsonMergePatch();
-        return patchMessage(documentId, clientId, jsonMergePatchEdit(documentId, clientId, jsonPatch));
+        return patchMessage(documentId, clientId, jsonMergePatchEdit(jsonPatch));
     }
 
-    private static JsonMergePatchEdit jsonMergePatchEdit(final String documentId, final String clientId, final JsonMergePatch patch) {
-        return JsonMergePatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
-                .diff(patch)
-                .build();
+    private static JsonMergePatchEdit jsonMergePatchEdit(final JsonMergePatch patch) {
+        return JsonMergePatchEdit.withPatch(patch).build();
     }
 
     private static PatchMessage<JsonMergePatchEdit> patchMessage(final String documentId,
                                                             final String clientId,
                                                             final JsonMergePatch jsonMergePatch) {
-        return patchMessage(documentId, clientId, JsonMergePatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
-                .diff(jsonMergePatch)
-                .build());
+        return patchMessage(documentId, clientId, JsonMergePatchEdit.withPatch(jsonMergePatch).build());
     }
 
     private static JsonMergePatch jsonMergePatch() {

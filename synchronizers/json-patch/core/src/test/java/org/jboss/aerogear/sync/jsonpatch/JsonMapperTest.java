@@ -77,9 +77,7 @@ public class JsonMapperTest {
 
     @Test
     public void jsonPatchEditToJson() {
-        final String documentId = "1234";
-        final String clientId = "client1";
-        final String json = JsonMapper.toJson(jsonPatchEdit(documentId, clientId, jsonPatch()));
+        final String json = JsonMapper.toJson(jsonPatchEdit(jsonPatch()));
         final JsonNode edit = JsonMapper.asJsonNode(json);
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
@@ -93,36 +91,25 @@ public class JsonMapperTest {
 
     @Test
     public void jsonPatchEditFromJson() {
-        final String documentId = "1234";
-        final String clientId = "client1";
         final JsonPatch patch = jsonPatch();
-        final String json = JsonMapper.toJson(jsonPatchEdit(documentId, clientId, patch));
+        final String json = JsonMapper.toJson(jsonPatchEdit(patch));
         final JsonPatchEdit edit = JsonMapper.fromJson(json, JsonPatchEdit.class);
-        assertThat(edit.documentId(), equalTo(documentId));
-        assertThat(edit.clientId(), equalTo(clientId));
         assertThat(edit.diff(), is(notNullValue()));
         assertThat(edit.diff().jsonPatch().toString(), equalTo(patch.toString()));
     }
 
     private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId, final String clientId) {
-        final JsonPatch jsonPatch = jsonPatch();
-        return patchMessage(documentId, clientId, jsonPatchEdit(documentId, clientId, jsonPatch));
+        return patchMessage(documentId, clientId, jsonPatchEdit(jsonPatch()));
     }
 
-    private static JsonPatchEdit jsonPatchEdit(final String documentId, final String clientId, final JsonPatch patch) {
-        return JsonPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
-                .diff(patch)
-                .build();
+    private static JsonPatchEdit jsonPatchEdit(final JsonPatch patch) {
+        return JsonPatchEdit.withPatch(patch).build();
     }
 
     private static PatchMessage<JsonPatchEdit> patchMessage(final String documentId,
                                                             final String clientId,
                                                             final JsonPatch jsonPatch) {
-        return patchMessage(documentId, clientId, JsonPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
-                .diff(jsonPatch)
-                .build());
+        return patchMessage(documentId, clientId, JsonPatchEdit.withPatch(jsonPatch).build());
     }
 
     private static JsonPatch jsonPatch() {

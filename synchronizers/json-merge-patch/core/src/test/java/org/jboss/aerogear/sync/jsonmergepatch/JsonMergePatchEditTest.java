@@ -34,9 +34,7 @@ public class JsonMergePatchEditTest {
         final ObjectMapper objectMapper = new ObjectMapper();
         final ObjectNode mergePatch = objectMapper.createObjectNode().put("name", "Fletch");
         final JsonMergePatch jsonMergePatch = JsonMergePatch.fromJson(mergePatch);
-        final JsonMergePatchEdit edit = JsonMergePatchEdit.withDocumentId("1234")
-                .clientId("client1")
-                .diff(jsonMergePatch).build();
+        final JsonMergePatchEdit edit = JsonMergePatchEdit.withPatch(jsonMergePatch).build();
         assertThat(edit.diff(), is(notNullValue()));
         assertThat(edit.diff().jsonMergePatch(), equalTo(jsonMergePatch));
     }

@@ -35,7 +35,7 @@ public class JsonPatchEditTest {
         final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
         final ObjectNode target = objectMapper.createObjectNode().put("name", "Fletch");
         final JsonPatch jsonPatch = JsonDiff.asJsonPatch(source, target);
-        final JsonPatchEdit edit = JsonPatchEdit.withDocumentId("1234").clientId("client1").diff(jsonPatch).build();
+        final JsonPatchEdit edit = JsonPatchEdit.withPatch(jsonPatch).build();
         assertThat(edit.diff(), is(notNullValue()));
         assertThat(edit.diff().jsonPatch(), equalTo(jsonPatch));
     }

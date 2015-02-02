@@ -25,9 +25,6 @@ import org.jboss.aerogear.sync.DefaultShadowDocument;
 import org.jboss.aerogear.sync.PatchMessage;
 import org.jboss.aerogear.sync.ShadowDocument;
 import org.jboss.aerogear.sync.client.ClientSynchronizer;
-import org.jboss.aerogear.sync.jsonpatch.JsonMapper;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchEdit;
-import org.jboss.aerogear.sync.jsonpatch.JsonPatchMessage;
 import org.jboss.aerogear.sync.server.ServerSynchronizer;
 
 import java.math.BigInteger;
@@ -45,22 +42,18 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     @Override
     public JsonPatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(document.content(), shadowObject))
                 .checksum(checksum(shadowObject))
-                .diff(JsonDiff.asJsonPatch(document.content(), shadowObject))
                 .build();
     }
 
     @Override
     public JsonPatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return JsonPatchEdit.withPatch(JsonDiff.asJsonPatch(shadowObject, document.content()))
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
                 .checksum(checksum(shadowObject))
-                .diff(JsonDiff.asJsonPatch(shadowObject, document.content()))
                 .build();
     }
 

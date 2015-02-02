@@ -106,9 +106,9 @@ public class ClientSyncEngineIntegrationTest {
         assertThat(diffs.get(2).operation(), is(Operation.ADD));
         assertThat(diffs.get(2).text(), equalTo("!"));
 
-        final ClientDocument<String> document = dataStore.getShadowDocument(edit.documentId(), edit.clientId()).document();
+        final ClientDocument<String> document = dataStore.getShadowDocument(patchMessage.documentId(), patchMessage.clientId()).document();
 
-        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(edit.documentId(), edit.clientId());
+        final ShadowDocument<String> shadowDocument = dataStore.getShadowDocument(patchMessage.documentId(), patchMessage.clientId());
         assertThat(shadowDocument.clientVersion(), is(1L));
         assertThat(shadowDocument.serverVersion(), is(0L));
         assertThat(shadowDocument.document(), equalTo(document));

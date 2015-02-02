@@ -205,7 +205,7 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
             // version from the server.
             return;
         }
-        final String documentId = peek.documentId();
+        final String documentId = clientPatchMessage.documentId();
         final Set<Subscriber<?>> subscribers = subscribers(documentId);
         for (Subscriber<?> subscriber: subscribers) {
             final PatchMessage<?> patchMessage = diffs(documentId, subscriber.clientId());
@@ -241,15 +241,18 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
     }
 
     private S serverDiffs(final Document<T> document, final String clientId) {
-        final ShadowDocument<T> shadow = getShadowDocument(document.id(), clientId);
+        final String documentId = document.id();
+        final ShadowDocument<T> shadow = getShadowDocument(documentId, clientId);
         final S newEdit = serverDiff(document, shadow);
-        saveEdits(newEdit);
+        saveEdits(newEdit, documentId, clientId);
         saveShadow(incrementServerVersion(shadow));
         return newEdit;
     }
 
     private ShadowDocument<T> patchShadow(final PatchMessage<S> patchMessage) {
-        ShadowDocument<T> shadow = getShadowDocument(patchMessage.documentId(), patchMessage.clientId());
+        final String documentId = patchMessage.documentId();
+        final String clientId = patchMessage.clientId();
+        ShadowDocument<T> shadow = getShadowDocument(documentId, clientId);
         final Iterator<S> iterator = patchMessage.edits().iterator();
         while (iterator.hasNext()) {
             final S edit = iterator.next();
@@ -258,7 +261,7 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
                 continue;
             }
             if (hasClientUpdate(edit, shadow)) {
-                discardEdit(edit, iterator);
+                discardEdit(edit, documentId, clientId, iterator);
                 continue;
             }
             if (allVersionMatch(edit, shadow)) {
@@ -271,24 +274,26 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
 
     private ShadowDocument<T> restoreBackup(final ShadowDocument<T> shadow,
                                             final S edit) {
-        final BackupShadowDocument<T> backup = getBackupShadowDocument(edit.documentId(), edit.clientId());
+        final String documentId = shadow.document().id();
+        final String clientId = shadow.document().clientId();
+        final BackupShadowDocument<T> backup = getBackupShadowDocument(documentId, clientId);
         if (serverVersionMatch(backup, edit)) {
             final ShadowDocument<T> patchedShadow = synchronizer.patchShadow(edit,
                     newShadowDoc(backup.version(), shadow.clientVersion(), backup.shadow().document()));
-            dataStore.removeEdits(edit.documentId(), edit.clientId());
+            dataStore.removeEdits(documentId, clientId);
             return saveShadow(incrementClientVersion(patchedShadow));
         } else {
             throw new IllegalStateException(backup + " server version does not match version of " + edit.serverVersion());
         }
     }
 
-    private void discardEdit(final S edit, final Iterator<S> iterator) {
-        dataStore.removeEdit(edit);
+    private void discardEdit(final S edit, final String documentId, final String clientId, final Iterator<S> iterator) {
+        dataStore.removeEdit(edit, documentId, clientId);
         iterator.remove();
     }
 
     private ShadowDocument<T> saveShadowAndRemoveEdit(final ShadowDocument<T> shadow, final S edit) {
-        dataStore.removeEdit(edit);
+        dataStore.removeEdit(edit, shadow.document().id(), shadow.document().clientId());
         return saveShadow(shadow);
     }
 
@@ -342,8 +347,8 @@ public class ServerSyncEngine<T, S extends Edit<? extends Diff>> {
         return synchronizer.serverDiff(doc, shadow);
     }
 
-    private void saveEdits(final S edit) {
-        dataStore.saveEdits(edit);
+    private void saveEdits(final S edit, final String documentId, final String clientId) {
+        dataStore.saveEdits(edit, documentId, clientId);
     }
 
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {

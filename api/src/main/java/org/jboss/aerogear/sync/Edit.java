@@ -22,20 +22,6 @@ package org.jboss.aerogear.sync;
 public interface Edit<T extends Diff> {
 
     /**
-     * Identifies the client that this edit belongs to.
-     *
-     * @return {@code String} the client identifier.
-     */
-    String clientId();
-
-    /**
-     * Identifies the document that this edit is related to
-     *
-     * @return {@code String} the document documentId.
-     */
-    String documentId();
-
-    /**
      * The client version that edit is related to.
      *
      * @return {@code long} the client version that this edit is based on.

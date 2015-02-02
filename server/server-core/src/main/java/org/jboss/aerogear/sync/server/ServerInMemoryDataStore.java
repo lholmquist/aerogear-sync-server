@@ -74,8 +74,8 @@ public class ServerInMemoryDataStore<T, S extends Edit<? extends Diff>> implemen
     }
 
     @Override
-    public void saveEdits(final S edit) {
-        final Id id = id(edit.documentId(), edit.clientId());
+    public void saveEdits(final S edit, final String documentId, final String clientId) {
+        final Id id = id(documentId, clientId);
         final Queue<S> newEdits = new ConcurrentLinkedQueue<S>();
         while (true) {
             final Queue<S> currentEdits = pendingEdits.get(id);
@@ -101,8 +101,8 @@ public class ServerInMemoryDataStore<T, S extends Edit<? extends Diff>> implemen
     }
 
     @Override
-    public void removeEdit(final S edit) {
-        final Id id = id(edit.documentId(), edit.clientId());
+    public void removeEdit(final S edit, final String documentId, final String clientId) {
+        final Id id = id(documentId, clientId);
         while (true) {
             final Queue<S> currentEdits = pendingEdits.get(id);
             if (currentEdits == null) {

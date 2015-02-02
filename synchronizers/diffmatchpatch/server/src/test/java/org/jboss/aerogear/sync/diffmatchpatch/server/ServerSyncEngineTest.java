@@ -139,8 +139,6 @@ public class ServerSyncEngineTest {
         engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
         final DiffMatchPatchEdit edit = engine.diff(documentId, subscriber.clientId());
-        assertThat(edit.documentId(), equalTo(documentId));
-        assertThat(edit.clientId(), equalTo(subscriber.clientId()));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.diff().diffs().size(), is(1));
@@ -155,8 +153,7 @@ public class ServerSyncEngineTest {
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
         engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(subscriber.clientId())
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
                 .add("\"Mr.Rosen\"")
@@ -184,8 +181,7 @@ public class ServerSyncEngineTest {
         final String updatedVersion = "{\"name\": \"Mr.Rosen\"}";
         engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
-        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(subscriber.clientId())
+        final DiffMatchPatchEdit edit = DiffMatchPatchEdit.withChecksum("bogus")
                 .unchanged("{\"name\": ")
                 .delete("\"Mr.Babar\"")
                 .add("\"Mr.Rosen\"")
@@ -213,8 +209,7 @@ public class ServerSyncEngineTest {
         final String secondVersion = "{\"name\": \"Mr.Poon\"}";
         engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
-        final DiffMatchPatchEdit edit1 = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(subscriber.clientId())
+        final DiffMatchPatchEdit edit1 = DiffMatchPatchEdit.withChecksum("bogus")
                 .clientVersion(0)
                 .serverVersion(0)
                 .unchanged("{\"name\": ")
@@ -222,8 +217,7 @@ public class ServerSyncEngineTest {
                 .add("\"Mr.Rosen\"")
                 .unchanged("}")
                 .build();
-        final DiffMatchPatchEdit edit2 = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(subscriber.clientId())
+        final DiffMatchPatchEdit edit2 = DiffMatchPatchEdit.withChecksum("bogus")
                 // after the first diff on the client, the shadow client version will have been incremented
                 // and the following diff will use that shadow, hence the incremented client version here.
                 .clientVersion(1)
@@ -254,8 +248,7 @@ public class ServerSyncEngineTest {
         final String thirdVersion = "{\"name\": \"Mr.Poon\"}";
         engine.addSubscriber(subscriber, doc(documentId, originalVersion));
 
-        final DiffMatchPatchEdit firstEdit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(subscriber.clientId())
+        final DiffMatchPatchEdit firstEdit = DiffMatchPatchEdit.withChecksum("bogus")
                 .clientVersion(0)  // this patch was based on client version 0
                 .serverVersion(0)  // this patch was based on server version 0
                 .unchanged("{\"name\": ")
@@ -283,8 +276,7 @@ public class ServerSyncEngineTest {
         // message was dropped some where on route to the client.
         dataStore.saveShadowDocument(shadowDoc(documentId, subscriber.clientId(), 1L, 1L, thirdVersion));
 
-        final DiffMatchPatchEdit secondEdit = DiffMatchPatchEdit.withDocumentId(documentId)
-                .clientId(subscriber.clientId())
+        final DiffMatchPatchEdit secondEdit = DiffMatchPatchEdit.withChecksum("bogus")
                 // this is to simulate an earlier version coming from the client, which means that the client never
                 // got version 1 that the server sent. Remember that we are simulating this using the previous
                 // saveShadowDocument call above which set the server version to 1.

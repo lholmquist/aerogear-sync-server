@@ -21,30 +21,16 @@ import org.jboss.aerogear.sync.Edit;
 
 public class JsonPatchEdit implements Edit<JsonPatchDiff> {
 
-    private final String clientId;
-    private final String documentId;
     private final long clientVersion;
     private final long serverVersion;
     private final String checksum;
-    private final JsonPatchDiff diffs;
+    private final JsonPatchDiff diff;
 
     private JsonPatchEdit(final Builder builder) {
-        clientId = builder.clientId;
-        documentId = builder.documentId;
         clientVersion = builder.clientVersion;
         serverVersion = builder.serverVersion;
         checksum = builder.checksum;
-        diffs = builder.diffs;
-    }
-
-    @Override
-    public String clientId() {
-        return clientId;
-    }
-
-    @Override
-    public String documentId() {
-        return documentId;
+        diff = builder.diff;
     }
 
     @Override
@@ -64,7 +50,7 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
 
     @Override
     public JsonPatchDiff diff() {
-        return diffs;
+        return diff;
     }
 
     @Override
@@ -84,62 +70,49 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
         if (serverVersion != that.serverVersion) {
             return false;
         }
-        if (!checksum.equals(that.checksum)) {
+        if (!diff.equals(that.diff)) {
             return false;
         }
-        if (!clientId.equals(that.clientId)) {
-            return false;
-        }
-        if (!diffs.equals(that.diffs)) {
-            return false;
-        }
-        return !documentId.equals(that.documentId);
+        return !checksum.equals(that.checksum);
     }
 
     @Override
     public int hashCode() {
-        int result = clientId.hashCode();
-        result = 31 * result + documentId.hashCode();
+        int result = checksum.hashCode();
         result = 31 * result + (int) (clientVersion ^ clientVersion >>> 32);
         result = 31 * result + (int) (serverVersion ^ serverVersion >>> 32);
-        result = 31 * result + checksum.hashCode();
-        result = 31 * result + diffs.hashCode();
+        result = 31 * result + diff.hashCode();
         return result;
     }
 
     @Override
     public String toString() {
-        return "JsonPatctEdit[documentId=" + documentId  +
-                ", clientId=" + clientId +
-                ", serverVersion=" + serverVersion +
+        return "JsonPatctEdit[serverVersion=" + serverVersion +
                 ", clientVersion=" + clientVersion +
-                ", diffs=" + diffs + ']';
+                ", diff=" + diff + ']';
     }
 
-    public static Builder withDocumentId(final String documentId) {
-        return new Builder(documentId);
+    public static Builder withPatch(final JsonPatch patch) {
+        return new Builder(patch);
+    }
+
+    public static Builder withChecksum(final String checksum) {
+        return new Builder(checksum);
     }
 
     public static class Builder {
 
-        private final String documentId;
-        private String clientId;
         private long serverVersion;
         private long clientVersion;
         private String checksum;
-        private JsonPatchDiff diffs;
+        private JsonPatchDiff diff;
 
-        public static Builder withDocumentId(final String documentId) {
-            return new Builder(documentId);
+        private Builder(final JsonPatch patch) {
+            diff = new JsonPatchDiff(patch);
         }
 
-        private Builder(final String documentId) {
-            this.documentId = documentId;
-        }
-
-        public Builder clientId(final String clientId) {
-            this.clientId = clientId;
-            return this;
+        private Builder(final String checksum) {
+            this.checksum = checksum;
         }
 
         public Builder serverVersion(final long serverVersion) {
@@ -152,20 +125,17 @@ public class JsonPatchEdit implements Edit<JsonPatchDiff> {
             return this;
         }
 
-        public Builder diff(final JsonPatch patch) {
-            diffs = new JsonPatchDiff(patch);
-            return this;
-        }
-
         public Builder checksum(final String checksum) {
             this.checksum = checksum;
             return this;
         }
 
+        public Builder patch(final JsonPatch patch) {
+            diff = new JsonPatchDiff(patch);
+            return this;
+        }
+
         public JsonPatchEdit build() {
-            if (clientId == null) {
-                throw new IllegalArgumentException("clientId must not be null");
-            }
             return new JsonPatchEdit(this);
         }
     }

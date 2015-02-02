@@ -39,7 +39,6 @@ public class DiffMatchPatchServerSynchronizerTest {
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
         final DiffMatchPatchEdit edit = synchronizer.clientDiff(document, shadowDocument);
-        assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.diff().diffs().size(), is(2));
@@ -56,7 +55,6 @@ public class DiffMatchPatchServerSynchronizerTest {
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "testing");
 
         final DiffMatchPatchEdit edit = synchronizer.serverDiff(document, shadowDocument);
-        assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
         assertThat(edit.diff().diffs().size(), is(2));
@@ -93,8 +91,7 @@ public class DiffMatchPatchServerSynchronizerTest {
         final ServerSynchronizer<String, DiffMatchPatchEdit> synchronizer = new DiffMatchPatchServerSynchronizer();
         final ShadowDocument<String> shadowDocument = shadowDocument("1234", "client1", "Beve");
 
-        final DiffMatchPatchEdit edit1 = DiffMatchPatchEdit.withDocumentId("1234")
-                .clientId("client1")
+        final DiffMatchPatchEdit edit1 = DiffMatchPatchEdit.withChecksum("bogus")
                 .delete("B")
                 .add("I'm th")
                 .unchanged("e")

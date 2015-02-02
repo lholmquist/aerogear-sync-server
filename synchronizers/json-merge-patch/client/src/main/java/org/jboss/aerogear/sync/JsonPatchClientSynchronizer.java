@@ -41,10 +41,8 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     @Override
     public JsonMergePatchEdit clientDiff(final ShadowDocument<JsonNode> shadowDocument, final ClientDocument<JsonNode> document) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonMergePatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return JsonMergePatchEdit.withPatch(patchFromJsonNode(document.content()))
                 .checksum(checksum(shadowObject))
-                .diff(patchFromJsonNode(document.content()))
                 .build();
     }
 
@@ -52,12 +50,10 @@ public class JsonPatchClientSynchronizer implements ClientSynchronizer<JsonNode,
     @Override
     public JsonMergePatchEdit serverDiff(final ClientDocument<JsonNode> document, final ShadowDocument<JsonNode> shadowDocument) {
         final JsonNode shadowObject = shadowDocument.document().content();
-        return JsonMergePatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return JsonMergePatchEdit.withPatch(patchFromJsonNode(shadowObject))
                 .serverVersion(shadowDocument.serverVersion())
                 .clientVersion(shadowDocument.clientVersion())
                 .checksum(checksum(shadowObject))
-                .diff(patchFromJsonNode(shadowObject))
                 .build();
     }
 

@@ -102,7 +102,6 @@ public class ServerSyncEngineIntegrationTest {
         final DiffMatchPatchEdit edit = serverSyncEngine.diff(documentId, clientTwo);
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.serverVersion(), is(0L));
-        assertThat(edit.clientId(), equalTo(clientTwo));
         final LinkedList<DiffMatchPatchDiff> diffs = edit.diff().diffs();
         assertThat(diffs.size(), is(3));
         assertThat(diffs.get(0).operation(), is(Operation.UNCHANGED));

@@ -73,9 +73,11 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
      * @return {@link PatchMessage} containing the edits for the changes in the document.
      */
     public PatchMessage<S> diff(final ClientDocument<T> document) {
-        final ShadowDocument<T> shadow = getShadowDocument(document.id(), document.clientId());
+        final String documentId = document.id();
+        final String clientId = document.clientId();
+        final ShadowDocument<T> shadow = getShadowDocument(documentId, clientId);
         final S edit = serverDiff(document, shadow);
-        saveEdits(edit);
+        saveEdits(edit, documentId, clientId);
         final ShadowDocument<T> patchedShadow = diffPatchShadow(shadow, edit);
         saveShadow(incrementClientVersion(patchedShadow));
         return getPendingEdits(document.id(), document.clientId());
@@ -124,7 +126,9 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
     }
 
     private ShadowDocument<T> patchShadow(final PatchMessage<S> patchMessage) {
-        ShadowDocument<T> shadow = getShadowDocument(patchMessage.documentId(), patchMessage.clientId());
+        final String documentId = patchMessage.documentId();
+        final String clientId = patchMessage.clientId();
+        ShadowDocument<T> shadow = getShadowDocument(documentId, clientId);
         final Iterator<S> iterator = patchMessage.edits().iterator();
         while (iterator.hasNext()) {
             final S edit = iterator.next();
@@ -133,7 +137,7 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
                 continue;
             }
             if (hasServerVersion(edit, shadow)) {
-                discardEdit(edit, iterator);
+                discardEdit(edit, documentId, clientId, iterator);
                 continue;
             }
             if (allVersionsMatch(edit, shadow) || isSeedVersion(edit)) {
@@ -154,11 +158,13 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
 
     private ShadowDocument<T> restoreBackup(final ShadowDocument<T> shadow,
                                             final S edit) {
-        final BackupShadowDocument<T> backup = getBackupShadowDocument(edit.documentId(), edit.clientId());
+        final String documentId = shadow.document().id();
+        final String clientId = shadow.document().clientId();
+        final BackupShadowDocument<T> backup = getBackupShadowDocument(documentId, clientId);
         if (clientVersionMatch(edit, backup)) {
             final ShadowDocument<T> patchedShadow = clientSynchronizer.patchShadow(edit,
                     newShadowDoc(backup.version(), shadow.clientVersion(), backup.shadow().document()));
-            dataStore.removeEdits(edit.documentId(), edit.clientId());
+            dataStore.removeEdits(documentId, clientId);
             return saveShadow(incrementServerVersion(patchedShadow), edit);
         } else {
             throw new IllegalStateException("Backup version [" + backup.version() + "] does not match edit client version [" + edit.clientVersion() + ']');
@@ -170,17 +176,17 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
     }
 
     private ShadowDocument<T> saveShadowAndRemoveEdit(final ShadowDocument<T> shadow, final S edit) {
-        dataStore.removeEdit(edit);
+        dataStore.removeEdit(edit, shadow.document().id(), shadow.document().clientId());
         return saveShadow(shadow);
     }
 
     private ShadowDocument<T> saveShadow(final ShadowDocument<T> shadow, final S edit) {
-        dataStore.removeEdit(edit);
+        dataStore.removeEdit(edit, shadow.document().id(), shadow.document().clientId());
         return saveShadow(shadow);
     }
 
-    private void discardEdit(final S edit, final Iterator<S> iterator) {
-        dataStore.removeEdit(edit);
+    private void discardEdit(final S edit, final String documentId, final String clientId, final Iterator<S> iterator) {
+        dataStore.removeEdit(edit, documentId, clientId);
         iterator.remove();
     }
 
@@ -235,8 +241,8 @@ public class ClientSyncEngine<T, S extends Edit<? extends Diff>> extends Observa
         return clientSynchronizer.serverDiff(doc, shadow);
     }
 
-    private void saveEdits(final S edit) {
-        dataStore.saveEdits(edit);
+    private void saveEdits(final S edit, final String documentId, final String clientId) {
+        dataStore.saveEdits(edit, documentId, clientId);
     }
 
     private ShadowDocument<T> incrementClientVersion(final ShadowDocument<T> shadow) {

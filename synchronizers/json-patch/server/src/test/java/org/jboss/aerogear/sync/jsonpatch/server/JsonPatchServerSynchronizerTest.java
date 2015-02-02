@@ -54,8 +54,6 @@ public class JsonPatchServerSynchronizerTest {
                 new DefaultClientDocument<JsonNode>(documentId, clientId, updated));
         final DefaultDocument<JsonNode> document = new DefaultDocument<JsonNode>(documentId, source);
         final JsonPatchEdit jsonPatchEdit = syncer.clientDiff(document, shadowDocument);
-        assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
-        assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
         assertThat(jsonPatchEdit.diff(), is(notNullValue()));
         final JsonPatch patch = jsonPatchEdit.diff().jsonPatch();
         final JsonNode patched = patch.apply(source);
@@ -72,8 +70,6 @@ public class JsonPatchServerSynchronizerTest {
         final DefaultShadowDocument<JsonNode> shadowDocument = new DefaultShadowDocument<JsonNode>(0, 0,
                 new DefaultClientDocument<JsonNode>(documentId, clientId, source));
         final JsonPatchEdit jsonPatchEdit = syncer.serverDiff(document, shadowDocument);
-        assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
-        assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
         assertThat(jsonPatchEdit.diff(), is(notNullValue()));
         final JsonPatch patch = jsonPatchEdit.diff().jsonPatch();
         final JsonNode patched = patch.apply(source);
@@ -86,7 +82,7 @@ public class JsonPatchServerSynchronizerTest {
         final String clientId = "client1";
         final JsonPatch patch = jsonPatch();
         final PatchMessage<JsonPatchEdit> patchMessage = syncer.createPatchMessage(documentId, clientId,
-                asQueue(jsonPatchEdit(documentId, clientId, jsonPatch())));
+                asQueue(jsonPatchEdit(jsonPatch())));
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
@@ -97,12 +93,11 @@ public class JsonPatchServerSynchronizerTest {
     @Test
     public void patchDocument() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
         final DefaultDocument<JsonNode> document = new DefaultDocument<JsonNode>(documentId, source);
         final ObjectNode target = objectMapper.createObjectNode().put("name", "Fletch");
         final JsonPatch patch = JsonDiff.asJsonPatch(source, target);
-        final JsonPatchEdit edit = jsonPatchEdit(documentId, clientId, patch);
+        final JsonPatchEdit edit = jsonPatchEdit(patch);
         final Document<JsonNode> patched = syncer.patchDocument(edit, document);
         assertThat(patched.content().get("name").asText(), equalTo("Fletch"));
     }
@@ -116,16 +111,13 @@ public class JsonPatchServerSynchronizerTest {
                 new DefaultClientDocument<JsonNode>(documentId, clientId, source));
         final ObjectNode target = objectMapper.createObjectNode().put("name", "Fletch");
         final JsonPatch patch = JsonDiff.asJsonPatch(source, target);
-        final JsonPatchEdit edit = jsonPatchEdit(documentId, clientId, patch);
+        final JsonPatchEdit edit = jsonPatchEdit(patch);
         final ShadowDocument<JsonNode> patched = syncer.patchShadow(edit, shadowDocument);
         assertThat(patched.document().content().get("name").asText(), equalTo("Fletch"));
     }
 
-    private static JsonPatchEdit jsonPatchEdit(final String documentId, final String clientId, final JsonPatch patch) {
-        return JsonPatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
-                .diff(patch)
-                .build();
+    private static JsonPatchEdit jsonPatchEdit(final JsonPatch patch) {
+        return JsonPatchEdit.withPatch(patch).build();
     }
 
     private static JsonPatch jsonPatch() {

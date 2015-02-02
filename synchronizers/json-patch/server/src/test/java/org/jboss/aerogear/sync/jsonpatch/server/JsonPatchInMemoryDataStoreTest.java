@@ -40,10 +40,10 @@ public class JsonPatchInMemoryDataStoreTest {
         final String documentId = "12345";
         final String clientId = "client1";
         final ServerInMemoryDataStore<JsonNode, JsonPatchEdit> dataStore = new ServerInMemoryDataStore<JsonNode, JsonPatchEdit>();
-        final JsonPatchEdit editOne = JsonPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(0).build();
-        final JsonPatchEdit editTwo = JsonPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(1).build();
-        dataStore.saveEdits(editOne);
-        dataStore.saveEdits(editTwo);
+        final JsonPatchEdit editOne = JsonPatchEdit.withChecksum("bogus").clientVersion(0).build();
+        final JsonPatchEdit editTwo = JsonPatchEdit.withChecksum("bogus").clientVersion(1).build();
+        dataStore.saveEdits(editOne, documentId, clientId);
+        dataStore.saveEdits(editTwo, documentId, clientId);
         final Queue<JsonPatchEdit> edits = dataStore.getEdits(documentId, clientId);
         assertThat(edits.size(), is(2));
         final Iterator<JsonPatchEdit> iterator = edits.iterator();

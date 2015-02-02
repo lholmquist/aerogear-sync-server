@@ -36,8 +36,7 @@ public class JsonMapperTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId,
-                DiffMatchPatchEdit.withDocumentId(documentId)
-                        .clientId(clientId)
+                DiffMatchPatchEdit.withChecksum("bogus")
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "version"))
                         .diff(new DiffMatchPatchDiff(Operation.DELETE, "1"))
                         .diff(new DiffMatchPatchDiff(Operation.ADD, "2"))
@@ -68,8 +67,7 @@ public class JsonMapperTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId,
-                DiffMatchPatchEdit.withDocumentId(documentId)
-                        .clientId(clientId)
+                DiffMatchPatchEdit.withChecksum("bogus")
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
                         .diff(new DiffMatchPatchDiff(Operation.ADD, "tw"))
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "o"))
@@ -107,8 +105,7 @@ public class JsonMapperTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId,
-                DiffMatchPatchEdit.withDocumentId(documentId)
-                        .clientId(clientId)
+                DiffMatchPatchEdit.withChecksum("bogus")
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "{\"content\": [\"one\", \""))
                         .diff(new DiffMatchPatchDiff(Operation.ADD, "tw"))
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "o"))
@@ -146,8 +143,7 @@ public class JsonMapperTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId,
-                DiffMatchPatchEdit.withDocumentId(documentId)
-                        .clientId(clientId)
+                DiffMatchPatchEdit.withChecksum("bogus")
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "version"))
                         .diff(new DiffMatchPatchDiff(Operation.DELETE, "1"))
                         .diff(new DiffMatchPatchDiff(Operation.ADD, "2"))
@@ -155,8 +151,6 @@ public class JsonMapperTest {
         final DiffMatchPatchMessage deserialized = JsonMapper.fromJson(JsonMapper.toJson(patchMessage), DiffMatchPatchMessage.class);
         assertThat(deserialized.edits().size(), is(1));
         final DiffMatchPatchEdit edit = deserialized.edits().peek();
-        assertThat(edit.documentId(), equalTo(documentId));
-        assertThat(edit.clientId(), equalTo(clientId));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.diff().diffs().size(), is(3));
@@ -175,8 +169,6 @@ public class JsonMapperTest {
         final DiffMatchPatchMessage deserialized = JsonMapper.fromJson(json, DiffMatchPatchMessage.class);
         assertThat(deserialized.edits().size(), is(1));
         final DiffMatchPatchEdit edit = deserialized.edits().peek();
-        assertThat(edit.documentId(), equalTo("1234"));
-        assertThat(edit.clientId(), equalTo("client1"));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.clientVersion(), is(0L));
         assertThat(edit.diff().diffs().isEmpty(), is(true));
@@ -187,16 +179,13 @@ public class JsonMapperTest {
         final String documentId = "1234";
         final String clientId = "client1";
         final PatchMessage<DiffMatchPatchEdit> patchMessage = patchMessage(documentId, clientId,
-                DiffMatchPatchEdit.withDocumentId(documentId)
-                        .clientId(clientId)
+                DiffMatchPatchEdit.withChecksum("bogus")
                         .diff(new DiffMatchPatchDiff(Operation.UNCHANGED, "version"))
                         .diff(new DiffMatchPatchDiff(Operation.DELETE, "1"))
                         .diff(new DiffMatchPatchDiff(Operation.ADD, "2"))
                         .build());
         final String json = JsonMapper.toJson(patchMessage.edits().peek());
         final JsonNode edit = JsonMapper.asJsonNode(json);
-        assertThat(edit.get("clientId").asText(), equalTo(clientId));
-        assertThat(edit.get("id").asText(), equalTo(documentId));
         assertThat(edit.get("serverVersion").asText(), equalTo("0"));
         assertThat(edit.get("clientVersion").asText(), equalTo("0"));
         final JsonNode diffs = edit.get("diffs");

@@ -48,11 +48,9 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     public DiffMatchPatchEdit clientDiff(final ShadowDocument<String> shadowDocument, final ClientDocument<String> document) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(document.content(), shadowText);
-        return DiffMatchPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return DiffMatchPatchEdit.withChecksum("bogus")
                 .clientVersion(shadowDocument.clientVersion())
                 .serverVersion(shadowDocument.serverVersion())
-                .checksum(DiffMatchPatch.checksum(shadowText))
                 .diffs(asAeroGearDiffs(diffs))
                 .build();
     }
@@ -61,11 +59,9 @@ public class DefaultClientSynchronizer implements ClientSynchronizer<String, Dif
     public DiffMatchPatchEdit serverDiff(final ClientDocument<String> document, final ShadowDocument<String> shadowDocument) {
         final String shadowText = shadowDocument.document().content();
         final LinkedList<DiffMatchPatch.Diff> diffs = diffMatchPatch.diffMain(shadowText, document.content());
-        return DiffMatchPatchEdit.withDocumentId(document.id())
-                .clientId(shadowDocument.document().clientId())
+        return DiffMatchPatchEdit.withChecksum(DiffMatchPatch.checksum(shadowText))
                 .clientVersion(shadowDocument.clientVersion())
                 .serverVersion(shadowDocument.serverVersion())
-                .checksum(DiffMatchPatch.checksum(shadowText))
                 .diffs(asAeroGearDiffs(diffs))
                 .build();
     }

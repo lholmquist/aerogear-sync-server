@@ -17,10 +17,10 @@ public class DiffMatchPatchInMemoryDataStoreTest {
         final String documentId = "12345";
         final String clientId = "client1";
         final ServerInMemoryDataStore<String, DiffMatchPatchEdit> dataStore = new ServerInMemoryDataStore<String, DiffMatchPatchEdit>();
-        final DiffMatchPatchEdit editOne = DiffMatchPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(0).build();
-        final DiffMatchPatchEdit editTwo = DiffMatchPatchEdit.withDocumentId(documentId).clientId(clientId).clientVersion(1).build();
-        dataStore.saveEdits(editOne);
-        dataStore.saveEdits(editTwo);
+        final DiffMatchPatchEdit editOne = DiffMatchPatchEdit.withChecksum("bogus").clientVersion(0).build();
+        final DiffMatchPatchEdit editTwo = DiffMatchPatchEdit.withChecksum("bogus").clientVersion(1).build();
+        dataStore.saveEdits(editOne, documentId, clientId);
+        dataStore.saveEdits(editTwo, documentId, clientId);
         final Queue<DiffMatchPatchEdit> edits = dataStore.getEdits(documentId, clientId);
         assertThat(edits.size(), is(2));
         final Iterator<DiffMatchPatchEdit> iterator = edits.iterator();

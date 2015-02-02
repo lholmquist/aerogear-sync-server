@@ -55,8 +55,6 @@ public class JsonMergePatchServerSynchronizerTest {
                 new DefaultClientDocument<JsonNode>(documentId, clientId, updated));
         final DefaultDocument<JsonNode> document = new DefaultDocument<JsonNode>(documentId, source);
         final JsonMergePatchEdit jsonPatchEdit = syncer.clientDiff(document, shadowDocument);
-        assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
-        assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
         assertThat(jsonPatchEdit.diff(), is(notNullValue()));
         final JsonMergePatch patch = jsonPatchEdit.diff().jsonMergePatch();
         final JsonNode patched = patch.apply(source);
@@ -73,8 +71,6 @@ public class JsonMergePatchServerSynchronizerTest {
         final DefaultShadowDocument<JsonNode> shadowDocument = new DefaultShadowDocument<JsonNode>(0, 0,
                 new DefaultClientDocument<JsonNode>(documentId, clientId, source));
         final JsonMergePatchEdit jsonPatchEdit = syncer.serverDiff(document, shadowDocument);
-        assertThat(jsonPatchEdit.documentId(), equalTo(documentId));
-        assertThat(jsonPatchEdit.clientId(), equalTo(clientId));
         assertThat(jsonPatchEdit.diff(), is(notNullValue()));
         final JsonMergePatch patch = jsonPatchEdit.diff().jsonMergePatch();
         final JsonNode patched = patch.apply(source);
@@ -87,7 +83,7 @@ public class JsonMergePatchServerSynchronizerTest {
         final String clientId = "client1";
         final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
         final PatchMessage<JsonMergePatchEdit> patchMessage = syncer.createPatchMessage(documentId, clientId,
-                asQueue(jsonMergePatchEdit(documentId, clientId, jsonMergePatch())));
+                asQueue(jsonMergePatchEdit(jsonMergePatch())));
         assertThat(patchMessage.documentId(), equalTo(documentId));
         assertThat(patchMessage.clientId(), equalTo(clientId));
         assertThat(patchMessage.edits().size(), is(1));
@@ -100,11 +96,10 @@ public class JsonMergePatchServerSynchronizerTest {
     @Test
     public void patchDocument() {
         final String documentId = "1234";
-        final String clientId = "client1";
         final ObjectNode source = objectMapper.createObjectNode().put("name", "fletch");
         final DefaultDocument<JsonNode> document = new DefaultDocument<JsonNode>(documentId, source);
         final JsonMergePatch patch = jsonMergePatch();
-        final JsonMergePatchEdit edit = jsonMergePatchEdit(documentId, clientId, patch);
+        final JsonMergePatchEdit edit = jsonMergePatchEdit(patch);
         final Document<JsonNode> patched = syncer.patchDocument(edit, document);
         assertThat(patched.content().get("name").asText(), equalTo("Fletch"));
     }
@@ -117,16 +112,13 @@ public class JsonMergePatchServerSynchronizerTest {
         final DefaultShadowDocument<JsonNode> shadowDocument = new DefaultShadowDocument<JsonNode>(0, 0,
                 new DefaultClientDocument<JsonNode>(documentId, clientId, source));
         final JsonMergePatch patch = jsonMergePatch();
-        final JsonMergePatchEdit edit = jsonMergePatchEdit(documentId, clientId, patch);
+        final JsonMergePatchEdit edit = jsonMergePatchEdit(patch);
         final ShadowDocument<JsonNode> patched = syncer.patchShadow(edit, shadowDocument);
         assertThat(patched.document().content().get("name").asText(), equalTo("Fletch"));
     }
 
-    private static JsonMergePatchEdit jsonMergePatchEdit(final String documentId, final String clientId, final JsonMergePatch patch) {
-        return JsonMergePatchEdit.withDocumentId(documentId)
-                .clientId(clientId)
-                .diff(patch)
-                .build();
+    private static JsonMergePatchEdit jsonMergePatchEdit(final JsonMergePatch patch) {
+        return JsonMergePatchEdit.withPatch(patch).build();
     }
 
     private static JsonMergePatch jsonMergePatch() {
