@@ -3,7 +3,7 @@ This module contains a server implementations that uses the [server-core](../ser
 
 ### DiffMatchPatchSyncServer
 The [DiffMatchPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/DiffMatchPatchSyncServer.java) is a standalone server implementation
-that uses [DiffMatchPatch](../../synchronizers/diffmatchpath) for diffs/patches
+that uses [DiffMatchPatch](../../synchronizers/diffmatchpatch) for diffs/patches
 
 #### Starting using Maven
 
