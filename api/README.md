@@ -12,7 +12,6 @@ required to perform the specific differential synchronization steps.
 The [ClientDataStore](./src/main/java/org/jboss/aerogear/sync/client/ClientDataStore.java) defines the methods for
 storing the different document to allow for different types of storage models.
 
-
 ### Server API
 The [server package](./src/main/java/org/jboss/aerogear/sync/server) contains two interfaces:
 
