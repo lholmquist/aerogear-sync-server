@@ -3,7 +3,7 @@ This module contains a server implementations that uses the [server-core](../ser
 
 ### DiffMatchPatchSyncServer
 The [DiffMatchPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/DiffMatchPatchSyncServer.java) is a standalone server implementation
-that uses [DiffMatchPatch](../synchronizers/diffmatchpath) for diffs/patches
+that uses [DiffMatchPatch](../../synchronizers/diffmatchpath) for diffs/patches
 
 #### Starting using Maven
 
@@ -11,7 +11,7 @@ that uses [DiffMatchPatch](../synchronizers/diffmatchpath) for diffs/patches
 
 ### JsonPatchSyncServer
 The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonPatchSyncServer.java) is a standalone 
-server implementation that uses [JSON Patch](../synchronizers/json-patch) for diff/patches.
+server implementation that uses [JSON Patch](../..//synchronizers/json-patch) for diff/patches.
 
 #### Starting using Maven
 
@@ -19,7 +19,7 @@ server implementation that uses [JSON Patch](../synchronizers/json-patch) for di
     
 ### JsonMergePatchSyncServer
 The [JsonMergePatchSyncServer](./src/main/java/org/jboss/aerogear/sync/JsonMergePatchSyncServer.java) is a standalone 
-server implementation that uses [JSON Merge Patch](../synchronizers/json-merge-patch) for diff/patches.
+server implementation that uses [JSON Merge Patch](../../synchronizers/json-merge-patch) for diff/patches.
 
 #### Starting using Maven
 
