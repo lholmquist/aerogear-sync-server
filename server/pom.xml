@@ -32,6 +32,7 @@
         <module>server-engine</module>
         <module>server-netty</module>
         <module>server-xmpp</module>
+        <module>server-wildfly</module>
     </modules>
 
 </project>
