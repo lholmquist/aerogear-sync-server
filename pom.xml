@@ -42,7 +42,7 @@
     </scm>
 
     <properties>
-        <version.io.netty>4.1.0.Beta4-SNAPSHOT</version.io.netty>
+        <version.io.netty>4.1.0.Beta4</version.io.netty>
     </properties>
 
     <modules>
@@ -290,11 +290,4 @@
             </plugins>
         </pluginManagement>
     </build>
-    <repositories>
-        <repository>
-            <id>clinker-netty-snapshots-repo</id>
-            <name>netty-snapshots-repo</name>
-            <url>http://clinker.netty.io/nexus/content/repositories/snapshots/</url>
-        </repository>
-    </repositories>
 </project>
