@@ -44,17 +44,6 @@ Contains tests that use both the [server-engine](./server/server-engine) and [cl
 
     mvn clean install
 
-### Creating a distribution
-A distribution (a "fat" jar) can be produces by running the following maven command from the [distribution](./distribution)
-directory:
-
-    mvn package
-
-This willl produce a ```target/aerogear-sync-server-VERSION.jar``` file. This jar is executable and can be used to start
-the JSON Patch server:
-
-    java -jar target/aerogear-sync-server-VERSION.jar
-
 ## Usage
 
 ### Starting the JSON Patch server
