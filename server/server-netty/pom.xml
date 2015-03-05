@@ -85,6 +85,7 @@
       <profile>
         <id>diffmatch</id>
         <build>
+		  <finalName>sync-server-netty</finalName>
           <plugins>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
@@ -106,12 +107,42 @@
                 </systemProperties>
               </configuration>
             </plugin>
+	        <plugin>
+	          <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-shade-plugin</artifactId>
+	          <executions>
+	            <execution>
+	              <phase>package</phase>
+	              <goals>
+	                <goal>shade</goal>
+	              </goals>
+	              <configuration>
+	                <transformers>
+	                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+	                    <mainClass>org.jboss.aerogear.sync.server.netty.DiffMatchPatchSyncServer</mainClass>
+	                  </transformer>
+	                </transformers>
+	                <filters>
+	                  <filter>
+	                    <artifact>*:*</artifact>
+	                    <excludes>
+	                      <exclude>META-INF/LICENSE.txt</exclude>
+	                      <exclude>META-INF/NOTICE.txt</exclude>
+	                    </excludes>
+	                  </filter>
+	                </filters>
+	              </configuration>
+	            </execution>
+	          </executions>
+	        </plugin>
+			
           </plugins>
         </build>
       </profile>
       <profile>
         <id>jsonpatch</id>
         <build>
+  		  <finalName>sync-server-netty</finalName>
           <plugins>
             <plugin>
               <groupId>org.codehaus.mojo</groupId>
@@ -133,13 +164,43 @@
                 </systemProperties>
               </configuration>
             </plugin>
+	        <plugin>
+	          <groupId>org.apache.maven.plugins</groupId>
+	          <artifactId>maven-shade-plugin</artifactId>
+	          <executions>
+	            <execution>
+	              <phase>package</phase>
+	              <goals>
+	                <goal>shade</goal>
+	              </goals>
+	              <configuration>
+	                <transformers>
+	                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+	                    <mainClass>org.jboss.aerogear.sync.server.netty.JsonPatchSyncServer</mainClass>
+	                  </transformer>
+	                </transformers>
+	                <filters>
+	                  <filter>
+	                    <artifact>*:*</artifact>
+	                    <excludes>
+	                      <exclude>META-INF/LICENSE.txt</exclude>
+	                      <exclude>META-INF/NOTICE.txt</exclude>
+	                    </excludes>
+	                  </filter>
+	                </filters>
+	              </configuration>
+	            </execution>
+	          </executions>
+	        </plugin>
+
           </plugins>
         </build>
       </profile>
       <profile>
           <id>jsonmerge</id>
           <build>
-              <plugins>
+			  <finalName>sync-server-netty</finalName>
+			  <plugins>
                   <plugin>
                       <groupId>org.codehaus.mojo</groupId>
                       <artifactId>exec-maven-plugin</artifactId>
@@ -160,6 +221,34 @@
                           </systemProperties>
                       </configuration>
                   </plugin>
+		          <plugin>
+		            <groupId>org.apache.maven.plugins</groupId>
+		            <artifactId>maven-shade-plugin</artifactId>
+		            <executions>
+		              <execution>
+		                <phase>package</phase>
+		                <goals>
+		                  <goal>shade</goal>
+		                </goals>
+		                <configuration>
+		                  <transformers>
+		                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+		                      <mainClass>org.jboss.aerogear.sync.server.netty.JsonMergePatchSyncServer</mainClass>
+		                    </transformer>
+		                  </transformers>
+		                  <filters>
+		                    <filter>
+		                      <artifact>*:*</artifact>
+		                      <excludes>
+		                        <exclude>META-INF/LICENSE.txt</exclude>
+		                        <exclude>META-INF/NOTICE.txt</exclude>
+		                      </excludes>
+		                    </filter>
+		                  </filters>
+		                </configuration>
+		              </execution>
+		            </executions>
+		          </plugin>
               </plugins>
           </build>
       </profile>
