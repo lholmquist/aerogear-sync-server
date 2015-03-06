@@ -25,55 +25,142 @@
     </parent>
     <artifactId>sync-server-dist</artifactId>
     <packaging>jar</packaging>
-    <name>AeroGear Data Synchronization Netty Server</name>
+    <name>AeroGear Data Synchronization Server Distribution</name>
+
 
     <build>
-        <plugins>
-            <plugin>
-              <groupId>org.apache.maven.plugins</groupId>
-              <artifactId>maven-assembly-plugin</artifactId>
-              <configuration>
-                <finalName>aerogear-sync-server-${project.version}</finalName>
-                <appendAssemblyId>false</appendAssemblyId>
-                <descriptors> 
-                  <descriptor>src/assembly/dist.xml</descriptor>
-                </descriptors>
-                <archive>
-                  <manifest>
-                    <mainClass>org.jboss.aerogear.sync.server.netty.JsonPatchSyncServer</mainClass>
-                    <addClasspath>true</addClasspath>
-                  </manifest>
-                </archive>
-              </configuration>
-              <executions>
-                  <execution>
-                      <phase>package</phase>
-                      <goals>
-                          <goal>single</goal>
-                      </goals>
-                 </execution>
-            </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <configuration>
-                    <executable>${java.home}/bin/java</executable>
-                    <arguments>
-                        <argument>-classpath</argument>
-                        <classpath/>
-                        <argument>org.jboss.aerogear.sync.DiffSyncServer</argument>
-                    </arguments>
-                    <classpathScope>compile</classpathScope>
-                    <systemProperties>
-                        <property>
-                            <key>io.netty.leakDetectionLevel</key>
-                            <value>disabled</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
-            </plugin>
+         <plugins>
+             <plugin>
+                 <groupId>org.codehaus.mojo</groupId>
+                 <artifactId>dependency-maven-plugin</artifactId>
+                 <executions>
+
+                     <!-- Bundle the different server WAR files for UPS -->
+                     <execution>
+                         <id>copy-servers</id>
+                         <phase>package</phase>
+                         <goals>
+                             <goal>copy</goal>
+                         </goals>
+                         <configuration>
+                             <artifactItems>
+                                 <artifactItem>
+                                     <groupId>${project.groupId}</groupId>
+                                     <artifactId>sync-server-wildfly</artifactId>
+                                     <version>${project.version}</version>
+                                     <type>war</type>
+                                     <destFileName>sync-server-wildfly.war</destFileName>
+                                 </artifactItem>
+                             </artifactItems>
+                             <outputDirectory>${project.build.directory}/servers</outputDirectory>
+                         </configuration>
+                     </execution>
+                 </executions>
+             </plugin>
+
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-shade-plugin</artifactId>
+               <executions>
+                   <execution>
+                       <id>JsonPatchSyncServer</id>
+                     <phase>package</phase>
+                     <goals>
+                       <goal>shade</goal>
+                     </goals>
+                     <configuration>
+                         <finalName>AeroGear-JsonPatchSyncServer</finalName>
+                         <outputDirectory>target/servers</outputDirectory>
+                       <transformers>
+                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                           <mainClass>org.jboss.aerogear.sync.server.netty.JsonPatchSyncServer</mainClass>
+                         </transformer>
+                       </transformers>
+                       <filters>
+                         <filter>
+                           <artifact>*:*</artifact>
+                           <excludes>
+                             <exclude>META-INF/LICENSE.txt</exclude>
+                             <exclude>META-INF/NOTICE.txt</exclude>
+                           </excludes>
+                         </filter>
+                       </filters>
+                     </configuration>
+                   </execution>
+                   <execution>
+                       <id>DiffMatchPatchSyncServer</id>
+                     <phase>package</phase>
+                     <goals>
+                       <goal>shade</goal>
+                     </goals>
+                     <configuration>
+                         <finalName>AeroGear-DiffMatchPatchSyncServer</finalName>
+                         <outputDirectory>target/servers</outputDirectory>
+
+                       <transformers>
+                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                           <mainClass>org.jboss.aerogear.sync.server.netty.DiffMatchPatchSyncServer</mainClass>
+                         </transformer>
+                       </transformers>
+                       <filters>
+                         <filter>
+                           <artifact>*:*</artifact>
+                           <excludes>
+                             <exclude>META-INF/LICENSE.txt</exclude>
+                             <exclude>META-INF/NOTICE.txt</exclude>
+                           </excludes>
+                         </filter>
+                       </filters>
+                     </configuration>
+                   </execution>
+                   <execution>
+                       <id>JsonMergePatchSyncServer</id>
+                     <phase>package</phase>
+                     <goals>
+                       <goal>shade</goal>
+                     </goals>
+                     <configuration>
+                         <finalName>AeroGear-JsonMergePatchSyncServer</finalName>
+                         <outputDirectory>target/servers</outputDirectory>
+                       <transformers>
+                         <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                           <mainClass>org.jboss.aerogear.sync.server.netty.JsonMergePatchSyncServer</mainClass>
+                         </transformer>
+                       </transformers>
+                       <filters>
+                         <filter>
+                           <artifact>*:*</artifact>
+                           <excludes>
+                             <exclude>META-INF/LICENSE.txt</exclude>
+                             <exclude>META-INF/NOTICE.txt</exclude>
+                           </excludes>
+                         </filter>
+                       </filters>
+                     </configuration>
+                   </execution>
+               </executions>
+             </plugin>
+
+             <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-assembly-plugin</artifactId>
+               <configuration>
+                 <finalName>aerogear-sync-server-${project.version}</finalName>
+                 <appendAssemblyId>false</appendAssemblyId>
+                 <descriptors> 
+                   <descriptor>src/assembly/dist.xml</descriptor>
+                 </descriptors>
+               </configuration>
+               <executions>
+                   <execution>
+                       <phase>package</phase>
+                       <goals>
+                           <goal>single</goal>
+                       </goals>
+                  </execution>
+             </executions>
+             </plugin>
+
         </plugins>
     </build>
 

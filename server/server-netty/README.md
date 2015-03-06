@@ -13,6 +13,16 @@ that uses [DiffMatchPatch](../../synchronizers/diffmatchpatch) for diffs/patches
 
     mvn exec:exec -Pdiffmatch
 
+#### Executable JAR file
+
+Alternatively, you can also create an executable JAR file using the Maven Shade plug-in. Build the JAR:
+
+    mvn clean install -Pdiffmatch
+
+And start the server:
+
+    java -jar target/sync-server-netty-diffmatch.jar
+
 ### JsonPatchSyncServer
 The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/JsonPatchSyncServer.java) is a standalone
 server implementation that uses [JSON Patch](../..//synchronizers/json-patch) for diff/patches.
@@ -20,7 +30,17 @@ server implementation that uses [JSON Patch](../..//synchronizers/json-patch) fo
 #### Starting using Maven
 
     mvn exec:exec -Pjsonpatch
-    
+
+#### Executable JAR file
+
+Alternatively, you can also create an executable JAR file using the Maven Shade plug-in. Build the JAR:
+
+    mvn clean install -Pjsonpatch
+
+And start the server:
+
+    java -jar target/sync-server-netty-jsonpatch.jar
+
 ### JsonMergePatchSyncServer
 The [JsonMergePatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/JsonMergePatchSyncServer.java) is a standalone
 server implementation that uses [JSON Merge Patch](../../synchronizers/json-merge-patch) for diff/patches.
@@ -28,6 +48,16 @@ server implementation that uses [JSON Merge Patch](../../synchronizers/json-merg
 #### Starting using Maven
 
     mvn exec:exec -Pjsonmerge
+
+#### Executable JAR file
+
+Alternatively, you can also create an executable JAR file using the Maven Shade plugin. Build the JAR:
+
+    mvn clean install -Pjsonmerge
+
+And start the server:
+
+    java -jar target/sync-server-netty-jsonmerge.jar
 
 ### Configuration option
 The server can be configured using [sync.config](./src/main/resources/sync.config)
