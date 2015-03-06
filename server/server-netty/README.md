@@ -15,7 +15,7 @@ that uses [DiffMatchPatch](../../synchronizers/diffmatchpatch) for diffs/patches
 
 #### Executable JAR file
 
-Alternative we also create an executalbe JAR file, using the Maven Shade plugin. Build the JAR
+Alternatively, you can also create an executable JAR file using the Maven Shade plug-in. Build the JAR:
 
     mvn clean install -Pdiffmatch
 
@@ -33,7 +33,7 @@ server implementation that uses [JSON Patch](../..//synchronizers/json-patch) fo
 
 #### Executable JAR file
 
-Alternative we also create an executalbe JAR file, using the Maven Shade plugin. Build the JAR
+Alternatively, you can also create an executable JAR file using the Maven Shade plug-in. Build the JAR:
 
     mvn clean install -Pjsonpatch
 
@@ -51,7 +51,7 @@ server implementation that uses [JSON Merge Patch](../../synchronizers/json-merg
 
 #### Executable JAR file
 
-Alternative we also create an executalbe JAR file, using the Maven Shade plugin. Build the JAR
+Alternatively, you can also create an executable JAR file using the Maven Shade plugin. Build the JAR:
 
     mvn clean install -Pjsonmerge
 
