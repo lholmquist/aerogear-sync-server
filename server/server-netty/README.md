@@ -21,7 +21,7 @@ Alternatively, you can also create an executable JAR file using the Maven Shade 
 
 And start the server:
 
-    java -jar target/sync-server-netty.jar
+    java -jar target/sync-server-netty-diffmatch.jar
 
 ### JsonPatchSyncServer
 The [JsonPatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/JsonPatchSyncServer.java) is a standalone
@@ -39,7 +39,7 @@ Alternatively, you can also create an executable JAR file using the Maven Shade 
 
 And start the server:
 
-    java -jar target/sync-server-netty.jar
+    java -jar target/sync-server-netty-jsonpatch.jar
 
 ### JsonMergePatchSyncServer
 The [JsonMergePatchSyncServer](./src/main/java/org/jboss/aerogear/sync/server/netty/JsonMergePatchSyncServer.java) is a standalone
@@ -57,7 +57,7 @@ Alternatively, you can also create an executable JAR file using the Maven Shade 
 
 And start the server:
 
-    java -jar target/sync-server-netty.jar
+    java -jar target/sync-server-netty-jsonmerge.jar
 
 ### Configuration option
 The server can be configured using [sync.config](./src/main/resources/sync.config)
