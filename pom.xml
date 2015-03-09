@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>sync-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0-alpha.1</version>
 
     <name>AeroGear Data Synchronization Parent</name>
     <url>http://aerogear.org/</url>
@@ -38,7 +38,7 @@
         <connection>scm:git:git://github.com/aerogear/aerogear-sync-server.git</connection>
         <developerConnection>scm:git:git@github.com:aerogear/aerogear-sync-server.git</developerConnection>
         <url>https://github.com/aerogear/aerogear-sync-server.git</url>
-        <tag>HEAD</tag>
+        <tag>1.0.0-alpha.1</tag>
     </scm>
 
     <properties>
